@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GrabFrom - Video Details</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1b8398",
+                        "background-light": "#fafafa",
+                        "background-dark": "#1c1e22",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-fill .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#121617] dark:text-gray-100 antialiased">
+<div class="flex h-screen overflow-hidden">
+<!-- Side Navigation -->
+<aside class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark flex flex-col">
+<div class="p-6 flex items-center gap-3">
+<div class="bg-primary rounded-lg p-1.5">
+<span class="material-symbols-outlined text-white text-2xl">download_done</span>
+</div>
+<div>
+<h1 class="text-lg font-bold leading-tight">GrabFrom</h1>
+<p class="text-xs text-gray-500">Video Downloader</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">home</span> Home
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">video_library</span> Library
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg bg-primary/10 text-primary dark:bg-primary/20" href="#">
+<span class="material-symbols-outlined">download</span> Downloads
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+</nav>
+<div class="p-4 mt-auto border-t border-gray-100 dark:border-gray-800">
+<div class="flex items-center gap-3 px-2 py-2">
+<div class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+<img alt="Avatar" data-alt="User avatar placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_sGF5P2KCFM3htkH878_YCDfZZUbonfi5lc2Uf3cxna_BwfyAUFQg-7DPOUGmj08LM52WW7asBiN604-qrrLXDXbRphdzxoqZ_voJjQPHgeafd6r86kg_oTajrlUejnru1hFGue4NdmXQKppsOS3CWGfbk4cWHJB82k2FfMMm7xCz7KAM4oK6Wje45QGumNu7ruSo5dV1NgM1WnPo6pVNLtJGfkQ73zfhrNHfmewDNPoA2fB0Zajz4DydTDBhMYSp1273erokb9w"/>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-xs font-semibold truncate">Alex Rivera</p>
+<p class="text-[10px] text-gray-500">Pro Plan</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col overflow-hidden bg-background-light dark:bg-background-dark">
+<!-- Header / Breadcrumbs -->
+<header class="h-16 flex items-center justify-between px-8 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 backdrop-blur-md">
+<div class="flex items-center gap-2 text-sm font-medium">
+<a class="text-gray-500 hover:text-primary flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-sm">arrow_back</span>
+                    Search Results
+                </a>
+<span class="text-gray-300">/</span>
+<span class="text-gray-900 dark:text-white">Video Details</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-8">
+<div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+<!-- Left Column: Video Metadata -->
+<div class="lg:w-2/5 space-y-6">
+<div class="bg-white dark:bg-background-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800">
+<div class="relative aspect-video bg-gray-900 group">
+<div class="absolute inset-0 bg-cover bg-center" data-alt="Stunning 4K nature cinematic landscape thumbnail" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBL_x0G8xZm70GuzKpW1UbSVQsF1ttP-ZMaLX_pwdiQj7BbOm2izb8B__byWru-nYblTyNSWAg1jdd1FHzpFBGywK0QVTCUWbR69BN8dunkPSVbYvW1lL1NeoExdl0dhntUQJb0duBqa-z07QIj4d0wrTm3qZTuEVbTDWmdlgUNN5b0USB4NCvAQnCxBvad8EGKdeU-qYsBI6y9YdCP--ETgZCQYgNgvso4SL2DF6ui_A20KHafLZJoXOSq_mqG0YkvMeWjOErY87U");'></div>
+<div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+<div class="absolute bottom-3 right-3 bg-black/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">10:24</div>
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-6xl">play_circle</span>
+</div>
+</div>
+<div class="p-6">
+<p class="text-[10px] font-bold text-primary uppercase tracking-widest mb-2">Source: YouTube</p>
+<h2 class="text-2xl font-bold leading-tight mb-4">The Beauty of Nature in 4K: Alpine Mountains</h2>
+<div class="flex items-center gap-3 pb-4 border-b border-gray-50 dark:border-gray-800">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">landscape</span>
+</div>
+<div>
+<p class="text-sm font-semibold">Nature Channel</p>
+<p class="text-xs text-gray-500">2.4M Subscribers • 3 weeks ago</p>
+</div>
+</div>
+<div class="pt-4 flex items-center justify-between text-xs text-gray-500">
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">visibility</span> 458K</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm">thumb_up</span> 12K</span>
+</div>
+<button class="flex items-center gap-1 text-primary font-semibold">
+<span class="material-symbols-outlined text-sm">share</span> Share
+                                </button>
+</div>
+</div>
+</div>
+<!-- Additional Info Widget -->
+<div class="bg-primary/5 dark:bg-primary/10 p-4 rounded-xl border border-primary/10">
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary">info</span>
+<p class="text-xs leading-relaxed text-gray-600 dark:text-gray-400">
+<b>GrabFrom Engine:</b> We've detected HDR content. For the best experience, select 4K WebM to maintain original color depth.
+                            </p>
+</div>
+</div>
+</div>
+<!-- Right Column: Configuration & List -->
+<div class="lg:w-3/5 space-y-6">
+<!-- Top Config Controls -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-white dark:bg-background-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+<p class="text-xs font-bold text-gray-400 uppercase mb-3 px-1">Quality Profile</p>
+<div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+<button class="flex-1 py-1.5 text-xs font-bold bg-white dark:bg-gray-700 shadow-sm rounded-md text-gray-900 dark:text-white">Max Quality</button>
+<button class="flex-1 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400">All Available</button>
+</div>
+</div>
+<div class="bg-white dark:bg-background-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800">
+<p class="text-xs font-bold text-gray-400 uppercase mb-3 px-1">Output Format</p>
+<div class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg gap-1">
+<button class="flex-1 py-1.5 text-[10px] font-bold bg-white dark:bg-gray-700 shadow-sm rounded-md text-gray-900 dark:text-white">Video+Audio</button>
+<button class="flex-1 py-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400">Video Only</button>
+<button class="flex-1 py-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400">Audio</button>
+</div>
+</div>
+</div>
+<!-- Streams List -->
+<div class="bg-white dark:bg-background-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden">
+<div class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-background-dark">
+<h3 class="font-bold text-sm">Available Streams</h3>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[10px] text-gray-500 font-medium">Ready to fetch</span>
+</div>
+</div>
+<div class="divide-y divide-gray-50 dark:divide-gray-800">
+<!-- Stream Row 1 (4K) -->
+<div class="flex items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 group transition-colors">
+<div class="flex-1 flex items-center gap-6">
+<span class="w-12 text-xs font-bold bg-primary text-white px-2 py-0.5 rounded text-center">4K</span>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">WebM Video</span>
+<span class="text-[10px] text-gray-400 uppercase">3840 x 2160 • HDR</span>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-medium text-gray-500">1.2 GB</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-primary group-hover:text-white transition-all text-gray-400">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+</div>
+</div>
+<!-- Stream Row 2 (1080p) -->
+<div class="flex items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 group transition-colors">
+<div class="flex-1 flex items-center gap-6">
+<span class="w-12 text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded text-center">1080p</span>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">MP4 Video</span>
+<span class="text-[10px] text-gray-400 uppercase">1920 x 1080 • H.264</span>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-medium text-gray-500">245 MB</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-primary group-hover:text-white transition-all text-gray-400">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+</div>
+</div>
+<!-- Stream Row 3 (720p) -->
+<div class="flex items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 group transition-colors">
+<div class="flex-1 flex items-center gap-6">
+<span class="w-12 text-xs font-bold bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-0.5 rounded text-center">720p</span>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">MP4 Video</span>
+<span class="text-[10px] text-gray-400 uppercase">1280 x 720</span>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-medium text-gray-500">110 MB</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-primary group-hover:text-white transition-all text-gray-400">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+</div>
+</div>
+<!-- Stream Row 4 (Audio) -->
+<div class="flex items-center px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 group transition-colors">
+<div class="flex-1 flex items-center gap-6">
+<span class="w-12 text-[10px] font-bold bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-center">HQ</span>
+<div class="flex flex-col">
+<span class="text-sm font-semibold">M4A Audio</span>
+<span class="text-[10px] text-gray-400 uppercase">256kbps • Stereo</span>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<span class="text-xs font-medium text-gray-500">12 MB</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 group-hover:bg-primary group-hover:text-white transition-all text-gray-400">
+<span class="material-symbols-outlined text-xl">download</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer Action Card -->
+<div class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-lg border border-primary/10 flex items-center justify-between">
+<div>
+<p class="text-xs font-semibold text-gray-500 uppercase">Total Selected</p>
+<p class="text-xl font-bold">1 Stream • 1.2 GB</p>
+<p class="text-[10px] text-gray-400 mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[10px]">hard_drive</span>
+                                240 GB available on SSD
+                            </p>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all">
+<span class="material-symbols-outlined">download_for_offline</span>
+                            Download All
+                        </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

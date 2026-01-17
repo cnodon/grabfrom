@@ -1,0 +1,14 @@
+4个界面：
+1. Launch 
+2. Video Details
+3. Download Dashboard
+4. Settings.
+
+给用户最简洁的选择,交互设计为：                                                                                                                                                                                                                                        
+    1. Launch UI: 用户输入URL，点击下载后进入 Video Detail UI。                                                                                                                                                                                                        
+    2. Video Detail UI包含：视频预览，解析选项（单选），合并选项（单选），解析结果（列表）。                                                                                                                                                                                                       
+    3. 解析选项：最高质量视频｜所有质量视频                                                                                                                                                                                                                                
+    4. 合并选项：自动合并音视频｜视频 Only | 音频Only                                                                                                                                                                                                                              
+    5. 用户点击对应的解析后结果的下载按钮，进入 Download Dashboard UI。                                                                                                                                                                                                           
+    6. Download Dashboard 功能：                                                                                                                                                                                                                         
+队列管理，下载管理，保存管理。（默认保存路径为：/Documents/，也可以用户指定文件夹路径，并保存记录）                                                                 

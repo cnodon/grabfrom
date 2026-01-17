@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GrabFrom - Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1b8398",
+                        "background-light": "#fafafa",
+                        "background-dark": "#1c1e22",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .sidebar-blur {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        /* Custom Toggle Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .2s;
+            border-radius: 20px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #1b8398; }
+        input:checked + .slider:before { transform: translateX(16px); }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#121617] dark:text-gray-200">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-background-dark/70 sidebar-blur flex flex-col justify-between p-6">
+<div class="space-y-8">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<div class="bg-primary w-8 h-8 rounded-lg flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-lg">download</span>
+</div>
+<h1 class="text-xl font-extrabold tracking-tight text-[#121617] dark:text-white">GrabFrom</h1>
+</div>
+<p class="text-xs font-semibold text-gray-400 uppercase tracking-widest pl-1 mt-4">Preferences</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm font-semibold">General</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined">dns</span>
+<span class="text-sm font-medium">Connection</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" href="#">
+<span class="material-symbols-outlined">info</span>
+<span class="text-sm font-medium">About</span>
+</a>
+</nav>
+</div>
+<div class="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-4">
+<div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+<p class="text-[10px] text-gray-400 font-bold uppercase mb-1">Status</p>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-green-500"></div>
+<p class="text-xs font-medium text-gray-600 dark:text-gray-400">Up to date (v1.0.0)</p>
+</div>
+</div>
+<button class="w-full bg-primary hover:bg-primary/90 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20">
+                Check for Updates
+            </button>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto bg-white dark:bg-background-dark">
+<div class="max-w-[800px] mx-auto py-12 px-10 space-y-12">
+<!-- Header Section -->
+<header class="space-y-2">
+<h2 class="text-4xl font-black tracking-tight text-[#121617] dark:text-white">General</h2>
+<p class="text-gray-500 text-lg">Manage your download preferences and application behavior.</p>
+</header>
+<hr class="border-gray-100 dark:border-gray-800"/>
+<!-- Download Location -->
+<section class="space-y-6">
+<div>
+<h3 class="text-xl font-bold text-[#121617] dark:text-white">Download Location</h3>
+<p class="text-sm text-gray-400">Choose where your downloaded files will be stored.</p>
+</div>
+<div class="flex items-end gap-3 max-w-2xl">
+<label class="flex-1 space-y-2">
+<span class="text-sm font-bold text-gray-700 dark:text-gray-300">Default save path</span>
+<div class="relative flex items-center">
+<input class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium text-gray-600 dark:text-gray-400 focus:outline-none" readonly="" type="text" value="/Users/username/Downloads/GrabFrom"/>
+<div class="absolute right-3 text-gray-400">
+<span class="material-symbols-outlined">folder</span>
+</div>
+</div>
+</label>
+<button class="h-12 px-6 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-bold rounded-xl transition-colors">
+                        Change...
+                    </button>
+</div>
+</section>
+<!-- Quality Preferences -->
+<section class="space-y-6 pt-4">
+<div>
+<h3 class="text-xl font-bold text-[#121617] dark:text-white">Quality Preferences</h3>
+<p class="text-sm text-gray-400">Set the default resolution for new downloads.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-sm font-bold text-gray-700 dark:text-gray-300">Default Video Quality</label>
+<select class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary">
+<option>Best Available (Auto)</option>
+<option>4K UHD (2160p)</option>
+<option>2K QHD (1440p)</option>
+<option selected="">Full HD (1080p)</option>
+<option>HD (720p)</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="text-sm font-bold text-gray-700 dark:text-gray-300">Preferred Audio Format</label>
+<select class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary">
+<option selected="">High Quality (MP3 320kbps)</option>
+<option>Lossless (FLAC)</option>
+<option>Standard (AAC 192kbps)</option>
+</select>
+</div>
+</div>
+</section>
+<hr class="border-gray-100 dark:border-gray-800"/>
+<!-- App Behavior -->
+<section class="space-y-6">
+<div>
+<h3 class="text-xl font-bold text-[#121617] dark:text-white">App Behavior</h3>
+<p class="text-sm text-gray-400">Control how the application interacts with your system.</p>
+</div>
+<div class="space-y-4">
+<!-- Toggle Row 1 -->
+<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
+<div class="space-y-0.5">
+<p class="text-sm font-bold text-[#121617] dark:text-white">Launch at Startup</p>
+<p class="text-xs text-gray-500">Automatically start GrabFrom when you log in.</p>
+</div>
+<label class="switch">
+<input type="checkbox"/>
+<span class="slider"></span>
+</label>
+</div>
+<!-- Toggle Row 2 -->
+<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
+<div class="space-y-0.5">
+<p class="text-sm font-bold text-[#121617] dark:text-white">Desktop Notifications</p>
+<p class="text-xs text-gray-500">Show a notification when a download is finished.</p>
+</div>
+<label class="switch">
+<input checked="" type="checkbox"/>
+<span class="slider"></span>
+</label>
+</div>
+<!-- Toggle Row 3 -->
+<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl">
+<div class="space-y-0.5">
+<p class="text-sm font-bold text-[#121617] dark:text-white">Dark Mode</p>
+<p class="text-xs text-gray-500">Switch between light and dark visual styles.</p>
+</div>
+<label class="switch">
+<input onclick="document.documentElement.classList.toggle('dark')" type="checkbox"/>
+<span class="slider"></span>
+</label>
+</div>
+</div>
+</section>
+<!-- Developer Info / About Card -->
+<section class="mt-12 p-8 rounded-3xl bg-gradient-to-br from-[#1b8398] to-[#0a4d5a] text-white relative overflow-hidden group">
+<div class="relative z-10 flex flex-col md:flex-row items-center gap-8">
+<div class="bg-white/20 p-4 rounded-2xl backdrop-blur-md">
+<span class="material-symbols-outlined !text-6xl">rocket_launch</span>
+</div>
+<div class="text-center md:text-left">
+<h4 class="text-2xl font-bold">GrabFrom for Desktop</h4>
+<p class="text-white/80 mt-1">Version 1.0.0 (Build 2405)</p>
+<div class="flex gap-4 mt-4">
+<a class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors" href="#">Privacy Policy</a>
+<a class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors" href="#">Terms of Service</a>
+<a class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors" href="#">Help Center</a>
+</div>
+</div>
+</div>
+<!-- Abstract BG Decoration -->
+<div class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"></div>
+<div class="absolute top-0 right-0 p-4">
+<span class="px-2 py-1 bg-white/20 rounded-lg text-[10px] font-bold uppercase backdrop-blur-sm">Stable Release</span>
+</div>
+</section>
+</div>
+</main>
+</div>
+</body></html>

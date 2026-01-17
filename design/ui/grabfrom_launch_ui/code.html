@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GrabFrom Launch UI</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1b8398",
+                        "background-light": "#fafafa",
+                        "background-dark": "#1c1e22",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .mac-shadow {
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08);
+        }
+        .sidebar-blur {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .dark .sidebar-blur {
+            background-color: rgba(28, 30, 34, 0.7);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-nav .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark transition-colors duration-300">
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-64 sidebar-blur border-r border-gray-200 dark:border-gray-800 flex flex-col justify-between p-6 z-10">
+<div class="flex flex-col gap-8">
+<!-- App Identity -->
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined text-2xl">download_for_offline</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#121617] dark:text-white text-lg font-bold leading-tight">GrabFrom</h1>
+<p class="text-[#658086] dark:text-gray-400 text-xs font-medium">v2.4.0</p>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex flex-col gap-1">
+<a class="active-nav flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-sm">Home</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">download_done</span>
+<span class="text-sm">Downloads</span>
+<span class="ml-auto bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full">3</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-sm">Settings</span>
+</a>
+</nav>
+</div>
+<!-- Sidebar Footer -->
+<div class="flex flex-col gap-4">
+<div class="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5">
+<p class="text-xs text-[#658086] mb-2 font-medium">Storage Used</p>
+<div class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 65%;"></div>
+</div>
+<p class="text-[10px] text-gray-400 mt-2 text-right">12.4 GB / 20 GB</p>
+</div>
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-xs font-bold transition-transform active:scale-95">
+<span class="material-symbols-outlined text-sm">update</span>
+                    Check for Updates
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 relative flex flex-col items-center justify-center p-8">
+<!-- Traffic Lights Decoration (macOS feel) -->
+<div class="absolute top-6 left-8 flex gap-2">
+<div class="size-3 rounded-full bg-red-400/80"></div>
+<div class="size-3 rounded-full bg-yellow-400/80"></div>
+<div class="size-3 rounded-full bg-green-400/80"></div>
+</div>
+<!-- Hero Section -->
+<div class="w-full max-w-2xl flex flex-col items-center text-center">
+<div class="mb-8">
+<h2 class="text-[#121617] dark:text-white text-4xl font-extrabold tracking-tight mb-3">
+                        Grab anything from <span class="text-primary italic">anywhere</span>.
+                    </h2>
+<p class="text-[#658086] dark:text-gray-400 text-lg font-medium">
+                        Paste a URL to start your high-quality download.
+                    </p>
+</div>
+<!-- Input Group -->
+<div class="w-full mac-shadow bg-white dark:bg-[#25282c] p-2 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-2 mb-10">
+<div class="pl-4 text-gray-400">
+<span class="material-symbols-outlined">link</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-[#121617] dark:text-white placeholder:text-gray-400 text-base py-4" placeholder="Paste YouTube, X, or Instagram link here..." type="text"/>
+<button class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95">
+<span class="material-symbols-outlined">download</span>
+                        Download
+                    </button>
+</div>
+<!-- Supported Platforms -->
+<div class="flex flex-col items-center gap-6">
+<p class="text-[11px] uppercase tracking-widest font-bold text-[#658086]">Compatible Platforms</p>
+<div class="flex gap-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all">
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-lg bg-red-600 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">play_circle</span>
+</div>
+<span class="text-sm font-semibold text-[#121617] dark:text-white">YouTube</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-lg bg-black flex items-center justify-center text-white">
+<span class="font-bold text-xs italic">X</span>
+</div>
+<span class="text-sm font-semibold text-[#121617] dark:text-white">X.com</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="size-8 rounded-lg bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-xl">photo_camera</span>
+</div>
+<span class="text-sm font-semibold text-[#121617] dark:text-white">Instagram</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Illustration Background (Subtle) -->
+<div class="absolute bottom-0 right-0 p-12 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[240px] select-none">cloud_download</span>
+</div>
+</main>
+<!-- Notification Toast (Floating) -->
+<div class="fixed bottom-8 right-8 bg-white dark:bg-[#25282c] border border-gray-100 dark:border-gray-800 rounded-xl mac-shadow p-4 flex items-center gap-4 animate-bounce-subtle">
+<div class="size-10 bg-green-100 dark:bg-green-900/30 text-green-600 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined">check_circle</span>
+</div>
+<div class="flex flex-col pr-4">
+<p class="text-xs font-bold text-[#121617] dark:text-white">Download Complete</p>
+<p class="text-[10px] text-[#658086]">The Last Dance - Episode 01.mp4</p>
+</div>
+<button class="text-gray-400 hover:text-gray-600">
+<span class="material-symbols-outlined text-sm">close</span>
+</button>
+</div>
+</div>
+</body></html>

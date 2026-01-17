@@ -1,0 +1,19 @@
+# GrabFrom - 依赖清单
+# Python 3.9+ required
+
+# GUI 框架 - 跨平台桌面应用
+pywebview>=5.0
+
+# 视频下载引擎
+yt-dlp>=2024.1.0
+
+# 打包工具
+pyinstaller>=6.0
+
+# macOS 专用依赖（pywebview 后端）
+pyobjc-core>=10.0; sys_platform == 'darwin'
+pyobjc-framework-Cocoa>=10.0; sys_platform == 'darwin'
+pyobjc-framework-WebKit>=10.0; sys_platform == 'darwin'
+
+# Windows 专用依赖（pywebview 后端）
+# pythonnet>=3.0; sys_platform == 'win32'  # 可选：使用 EdgeChromium

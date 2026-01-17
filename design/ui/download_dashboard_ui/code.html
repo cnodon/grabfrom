@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GrabFrom | Download Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#1b8398",
+                        "background-light": "#fafafa",
+                        "background-dark": "#1c1e22",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        .sidebar-blur {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .task-row:hover .hover-actions {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-[#121617] dark:text-white transition-colors duration-200">
+<div class="flex h-screen overflow-hidden">
+<!-- Left Sidebar Navigation -->
+<aside class="w-64 border-r border-[#e5e7eb] dark:border-[#333] bg-white/80 dark:bg-background-dark/80 sidebar-blur flex flex-col justify-between p-4 z-20">
+<div class="flex flex-col gap-8">
+<div class="flex items-center gap-3 px-2">
+<div class="bg-primary rounded-xl size-10 flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-2xl">rocket_launch</span>
+</div>
+<div class="flex flex-col">
+<h1 class="text-[#121617] dark:text-white text-base font-bold leading-tight">GrabFrom</h1>
+<p class="text-[#658086] text-xs font-medium">Desktop Video Utility</p>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary" href="#">
+<span class="material-symbols-outlined text-[22px] font-variation-fill-1">dashboard</span>
+<p class="text-sm font-semibold">Dashboard</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">video_library</span>
+<p class="text-sm font-medium">Library</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">history</span>
+<p class="text-sm font-medium">History</p>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-[22px]">settings</span>
+<p class="text-sm font-medium">Settings</p>
+</a>
+</nav>
+</div>
+<div class="p-4 bg-primary/5 rounded-xl border border-primary/10">
+<div class="flex justify-between items-center mb-2">
+<span class="text-[10px] uppercase tracking-wider font-bold text-primary/70">Total Speed</span>
+<span class="text-xs font-bold text-primary">12.4 MB/s</span>
+</div>
+<div class="w-full bg-primary/10 h-1 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-2/3"></div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col relative overflow-hidden">
+<!-- Top Navigation Bar -->
+<header class="h-16 flex items-center justify-between px-8 border-b border-[#e5e7eb] dark:border-[#333] bg-white dark:bg-[#1c1e22]">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-bold text-[#121617] dark:text-white">Downloads</h2>
+<div class="flex gap-1 ml-4">
+<div class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold">4 Active</div>
+<div class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 text-[11px] font-bold">12 Finished</div>
+</div>
+</div>
+<div class="flex items-center gap-4 flex-1 max-w-xl justify-end">
+<div class="relative w-full max-w-xs group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg transition-colors group-focus-within:text-primary">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-[#f0f3f4] dark:bg-[#2a2d32] border-none rounded-lg text-sm focus:ring-2 focus:ring-primary/50 placeholder:text-gray-500 text-[#121617] dark:text-white" placeholder="Search tasks..." type="text"/>
+</div>
+<button class="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-bold rounded-lg hover:bg-[#156a7c] transition-all shadow-sm shadow-primary/20">
+<span class="material-symbols-outlined text-lg">content_paste</span>
+<span>Paste URL</span>
+</button>
+</div>
+</header>
+<!-- Filters / Chips -->
+<div class="px-8 py-4 flex gap-2">
+<button class="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-semibold">All Tasks</button>
+<button class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors">Downloading</button>
+<button class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors">Paused</button>
+<button class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors">Completed</button>
+</div>
+<!-- Download List -->
+<div class="flex-1 overflow-y-auto px-8 pb-32">
+<div class="flex flex-col gap-3">
+<!-- Task Item: Downloading -->
+<div class="task-row group relative bg-white dark:bg-[#25282c] p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center gap-4">
+<div class="relative size-16 shrink-0 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-cover bg-center opacity-40" data-alt="Video thumbnail with dark overlay" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDfZ3-u5EwQTapch3xLRYH_oO7ssr9Gc3gIv5mZ_dH8fzxwDGP51gh89QrAPv-CPCZGyz4_vUXyQrt3EEfu4oDTBEdrNKnYpIaddfPfAmQTBtqV5TN6COni_XKE-q6lQGOGq3D-fse_TFDbQ8cyYq6qlQAtSQOnL7s3yMzV3PIj6rQUNMBmOppyBFIggb47pJL2D9PwZ7X7rhyZAPDZU5drHFn3sUvuJLOUDVqufvjfyVIWrMH0U2euQ2bc3FEJ_2_3ALucwJ4uZLw')"></div>
+<span class="material-symbols-outlined text-primary text-3xl z-10">play_circle</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="text-sm font-bold truncate text-[#121617] dark:text-white pr-4">WWDC 2024 Keynote - Apple Event Highlights.mp4</h3>
+<span class="shrink-0 px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">Downloading</span>
+</div>
+<div class="flex items-center gap-4 mb-3">
+<span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">speed</span> 5.2 MB/s</span>
+<span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">timer</span> 2 mins remaining</span>
+<span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">data_usage</span> 842 MB / 1.2 GB</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[73%]" style="transition: width 1s linear;"></div>
+</div>
+</div>
+<div class="hover-actions opacity-0 flex items-center gap-2 transition-opacity ml-4">
+<button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:bg-gray-200 transition-colors">
+<span class="material-symbols-outlined text-xl">pause</span>
+</button>
+<button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Task Item: Paused -->
+<div class="task-row group relative bg-white dark:bg-[#25282c] p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center gap-4">
+<div class="relative size-16 shrink-0 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 grayscale" data-alt="Nature landscape video preview thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAZS5ZsoMQAENEJzY4t1t6Us6jRZJDKUBVe1Rcjc1V9YL8ja8xgr9uNdisask_1DpC429dEo7UES_fo77F3eeMWLlzXQY72t7cJtRMg3hYbJ-y7xrp6KV41UHKZYPjgOw2DyHv0Uj8SesXFwARcnPR08K6NI8rLbHU897UEWJ2kxqtS2pk2ytVNq9v-KR1o4wFLFAlOB97I9w47uNwmmdQlVfuNvXESLLGykOLpjE8MdIqohNmBPD0TeWnt8rhmNRIuXgMh_Fh1Zo0')"></div>
+<span class="material-symbols-outlined text-gray-400 text-3xl z-10 font-variation-fill-1">pause_circle</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="text-sm font-bold truncate text-gray-500 dark:text-gray-400 pr-4">Nature 4K Cinematic - Patagonia.mkv</h3>
+<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">Paused</span>
+</div>
+<div class="flex items-center gap-4 mb-3">
+<span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">speed</span> 0 KB/s</span>
+<span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">data_usage</span> 3.1 GB / 4.5 GB</span>
+</div>
+<div class="w-full bg-gray-100 dark:bg-gray-800 h-1.5 rounded-full overflow-hidden">
+<div class="bg-gray-300 dark:bg-gray-600 h-full w-[68%]"></div>
+</div>
+</div>
+<div class="hover-actions opacity-0 flex items-center gap-2 transition-opacity ml-4">
+<button class="size-9 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30">
+<span class="material-symbols-outlined text-xl">play_arrow</span>
+</button>
+<button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Task Item: Completed -->
+<div class="task-row group relative bg-white dark:bg-[#25282c] p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all">
+<div class="flex items-center gap-4">
+<div class="relative size-16 shrink-0 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+<div class="absolute inset-0 bg-cover bg-center opacity-60" data-alt="Mountain view video thumbnail" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDd3WRfBxrHspkQwYXdQZvj685o0-DCR-3cvINatxiaGWQBFyCu5JQD8NN71rGCgRLEVl3t7b4WMWeVWep1QkTJzF1RYYIDM-lm1BlBSVTP3VepNWZMUMpgKOH3hK4uYJwViM66OuQAnzrAdDBEUCkbXeVr77bwFZKQaqdh6ivvd4LELtXfAZKg2VajuJ1LvKR12r4Bn7w5xA_eCwwWJT7YdHXgmqw-XQfzaeHJ_Pn0Wms_r0SH8LDmwEEIRAQIiCYsMCh0I1HN3Qc')"></div>
+<span class="material-symbols-outlined text-green-500 text-3xl z-10">check_circle</span>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center justify-between mb-1">
+<h3 class="text-sm font-bold truncate text-[#121617] dark:text-white pr-4">Lo-fi Hip Hop Radio - 24/7 Beats.mp4</h3>
+<span class="shrink-0 px-2 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase tracking-tight">Completed</span>
+</div>
+<div class="flex items-center gap-4 mb-1">
+<span class="text-[11px] text-[#658086]">Finished 2 hours ago • 256 MB</span>
+<span class="text-[11px] text-primary hover:underline cursor-pointer flex items-center gap-0.5">Show in Folder <span class="material-symbols-outlined text-xs">open_in_new</span></span>
+</div>
+</div>
+<div class="hover-actions opacity-0 flex items-center gap-2 transition-opacity ml-4">
+<button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:bg-gray-200 transition-colors">
+<span class="material-symbols-outlined text-xl">folder_open</span>
+</button>
+<button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors">
+<span class="material-symbols-outlined text-xl">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Status Bar -->
+<footer class="absolute bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-[#1c1e22]/90 border-t border-[#e5e7eb] dark:border-[#333] sidebar-blur px-8 flex items-center justify-between z-10">
+<div class="flex items-center gap-3">
+<div class="size-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500">
+<span class="material-symbols-outlined text-xl">folder</span>
+</div>
+<div>
+<p class="text-[10px] text-[#658086] font-bold uppercase tracking-wider leading-none mb-1">Save Path</p>
+<p class="text-sm font-medium text-[#121617] dark:text-white">~/Documents/GrabFrom/</p>
+</div>
+<button class="ml-2 px-3 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors">Change</button>
+</div>
+<div class="flex items-center gap-3">
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-[#121617] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-lg">pause_circle</span>
+<span>Pause All</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-[#121617] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+<span class="material-symbols-outlined text-lg">clear_all</span>
+<span>Clear Finished</span>
+</button>
+</div>
+</footer>
+</main>
+</div>
+</body></html>
