@@ -1,4 +1,4 @@
-# GrabFrom
+# Squirrel
 
 一个简洁高效的跨平台视频下载工具，支持从 YouTube 和 X.com 下载视频到本地。
 
@@ -19,8 +19,8 @@
 ### 方式一：下载安装包（推荐）
 
 从 [Releases](https://github.com/yourusername/grabfrom/releases) 页面下载：
-- **macOS**: `GrabFrom-macOS.dmg`
-- **Windows**: `GrabFrom-Windows.exe`
+- **macOS**: `Squirrel-macOS.dmg`
+- **Windows**: `Squirrel-Windows.exe`
 
 ### 方式二：从源码运行
 

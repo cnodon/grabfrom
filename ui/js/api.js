@@ -51,9 +51,29 @@ const API = {
     // ==================== 下载管理 ====================
 
     // 开始下载
-    async startDownload(url, formatId, outputFormat, title, thumbnail = '') {
+    async startDownload(
+        url,
+        formatId,
+        outputFormat,
+        title,
+        thumbnail = '',
+        includeAudio = true,
+        hasAudio = true,
+        hasVideo = true,
+        formatExt = ''
+    ) {
         if (!this._api) await this.init();
-        return await this._api.start_download(url, formatId, outputFormat, title, thumbnail);
+        return await this._api.start_download(
+            url,
+            formatId,
+            outputFormat,
+            title,
+            thumbnail,
+            includeAudio,
+            hasAudio,
+            hasVideo,
+            formatExt
+        );
     },
 
     // 暂停下载

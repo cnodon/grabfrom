@@ -14,7 +14,7 @@ class Config:
 
     # 默认配置
     DEFAULT_CONFIG = {
-        'download_path': str(Path.home() / 'Downloads' / 'GrabFrom'),
+        'download_path': str(Path.home() / 'Documents' / 'Squirrel'),
         'default_video_quality': 'best',  # best, 2160, 1440, 1080, 720
         'default_audio_format': 'mp3',    # mp3, m4a, flac
         'max_concurrent_downloads': 3,

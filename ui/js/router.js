@@ -98,8 +98,8 @@ const Router = {
         });
 
         // 添加当前路由高亮
-        const currentNav = document.querySelector(`[data-nav="${route}"]`);
-        if (currentNav) {
+        const highlightRoute = route === 'video-details' ? 'home' : route;
+        document.querySelectorAll(`[data-nav="${highlightRoute}"]`).forEach(currentNav => {
             currentNav.classList.remove('text-gray-600', 'hover:bg-gray-100', 'dark:text-gray-400', 'dark:hover:bg-gray-800');
             currentNav.classList.add('bg-primary/10', 'text-primary');
 
@@ -108,7 +108,7 @@ const Router = {
             if (icon) {
                 icon.style.fontVariationSettings = "'FILL' 1";
             }
-        }
+        });
     },
 
     // 获取当前路由

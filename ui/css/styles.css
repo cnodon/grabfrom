@@ -1,0 +1,167 @@
+body {
+  font-family: "Manrope", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.mac-shadow {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+}
+
+.sidebar-blur {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.dark .sidebar-blur {
+  background-color: rgba(28, 30, 34, 0.7);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.font-variation-fill-1 {
+  font-variation-settings: "FILL" 1, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+@keyframes bounce-subtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 2.5s ease-in-out infinite;
+}
+
+.hover-actions {
+  pointer-events: none;
+}
+
+.task-row:hover .hover-actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.launch-scan-track {
+  position: relative;
+  height: 6px;
+  flex: 1;
+  border-radius: 999px;
+  background: #f0f3f4;
+  overflow: hidden;
+}
+
+.dark .launch-scan-track {
+  background: #2a2d32;
+}
+
+.launch-scan-bar {
+  position: absolute;
+  height: 100%;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(227, 24, 55, 0), #E31837, rgba(227, 24, 55, 0));
+  animation: launch-scan 1.4s ease-in-out infinite;
+}
+
+@keyframes launch-scan {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(220%);
+  }
+}
+
+/* From Uiverse.io by njesenberger */
+.toggle-container {
+  --active-color: #1868e3;
+  --inactive-color: #d3d3d6;
+  position: relative;
+  aspect-ratio: 292 / 142;
+  height: 1.875em;
+}
+
+.toggle-input {
+  appearance: none;
+  margin: 0;
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.toggle {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.toggle-background {
+  fill: var(--inactive-color);
+  transition: fill 0.4s;
+}
+
+.toggle-input:checked + .toggle .toggle-background {
+  fill: var(--active-color);
+}
+
+.toggle-circle-center {
+  transform-origin: center;
+  transition: transform 0.6s;
+}
+
+.toggle-input:checked + .toggle .toggle-circle-center {
+  transform: translateX(150px);
+}
+
+.toggle-circle {
+  transform-origin: center;
+  transition: transform 0.45s;
+  backface-visibility: hidden;
+}
+
+.toggle-circle.left {
+  transform: scale(1);
+}
+
+.toggle-input:checked + .toggle .toggle-circle.left {
+  transform: scale(0);
+}
+
+.toggle-circle.right {
+  transform: scale(0);
+}
+
+.toggle-input:checked + .toggle .toggle-circle.right {
+  transform: scale(1);
+}
+
+.toggle-icon {
+  transition: fill 0.4s;
+}
+
+.toggle-icon.on {
+  fill: var(--inactive-color);
+}
+
+.toggle-input:checked + .toggle .toggle-icon.on {
+  fill: #fff;
+}
+
+.toggle-icon.off {
+  fill: #eaeaec;
+}
+
+.toggle-input:checked + .toggle .toggle-icon.off {
+  fill: var(--active-color);
+}

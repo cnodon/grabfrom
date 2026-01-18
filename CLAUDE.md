@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 项目概述
 
-GrabFrom - 跨平台视频下载工具，支持 YouTube 和 X.com 视频下载。
+Squirrel - 跨平台视频下载工具，支持 YouTube 和 X.com 视频下载。
 
 ## 运行命令
 

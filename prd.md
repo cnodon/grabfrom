@@ -1,8 +1,8 @@
-# GrabFrom 产品需求文档 (PRD)
+# Squirrel 产品需求文档 (PRD)
 
 ## 1. 产品概述
 
-**GrabFrom** 是一个简洁高效的跨平台视频下载工具，支持从 YouTube 和 X.com 下载视频到本地。
+**Squirrel** 是一个简洁高效的跨平台视频下载工具，支持从 YouTube 和 X.com 下载视频到本地。
 
 ### 1.1 目标用户
 - 需要下载在线视频供离线观看的用户
@@ -50,7 +50,7 @@
   - 全部暂停/全部开始批量操作
   - 清除已完成任务
 - 📁 **智能路径管理**
-  - 默认保存路径：`~/Documents/GrabFrom/`
+  - 默认保存路径：`~/Documents/Squirrel/`
   - 自定义保存文件夹
   - 记忆上次选择的路径
 - 💾 **断点续传支持**
@@ -131,7 +131,7 @@
     - Audio（仅音频）
   - 解析结果列表（Available Streams）
     - 每项显示：分辨率标签、格式、编码信息、文件大小、下载按钮
-  - 智能提示区域（GrabFrom Engine 提示）
+  - 智能提示区域（Squirrel Engine 提示）
   - 已选择汇总（Total Selected）和"Download All"按钮
 - **交互流程**:
   - 自动解析 URL 并显示视频信息
@@ -189,7 +189,7 @@
 ### 4.1 完整使用流程
 
 #### 步骤 1：Launch UI（启动界面）
-1. **启动应用**：双击打开 GrabFrom
+1. **启动应用**：双击打开 Squirrel
 2. **输入 URL**：在输入框中粘贴视频链接
 3. **点击"下载"按钮**：自动进入 Video Details UI
 
@@ -247,7 +247,7 @@
 
 | 配置项 | 默认值 |
 |--------|--------|
-| 默认保存目录 | `~/Documents/GrabFrom/` |
+| 默认保存目录 | `~/Documents/Squirrel/` |
 | 默认解析模式 | 最高质量视频 |
 | 默认合并模式 | 自动合并音视频 |
 | 最大并发下载数 | 3 |
@@ -278,7 +278,7 @@ A: 可以尝试在 Settings UI 中配置代理服务器，或者选择较低的�
 A: 请检查：1) URL 是否正确；2) 视频是否为私密或受地域限制；3) 网络连接是否正常。
 
 **Q: 下载的视频保存在哪里？**
-A: 默认保存在 `~/Documents/GrabFrom/` 目录。在 Settings UI 或 Download Dashboard UI 中可自定义保存位置。
+A: 默认保存在 `~/Documents/Squirrel/` 目录。在 Settings UI 或 Download Dashboard UI 中可自定义保存位置。
 
 **Q: 支持断点续传吗？**
 A: 是的，如果下载中断，可以在 Download Dashboard UI 中点击"恢复"按钮继续下载。

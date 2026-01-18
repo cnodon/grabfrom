@@ -1,4 +1,4 @@
-# GrabFrom 技术架构文档
+# Squirrel 技术架构文档
 
 ## 1. 技术栈概览
 
@@ -250,7 +250,7 @@ const api = {
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        GrabFrom Application                      │
+│                        Squirrel Application                      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  ┌──────────────────┐    JavaScript    ┌──────────────────┐     │
@@ -364,5 +364,5 @@ python build_windows.py
 
 ### 10.3 输出产物
 
-- **macOS**: `GrabFrom-macOS.dmg` (~40MB)
-- **Windows**: `GrabFrom-Windows.exe` (~35MB)
+- **macOS**: `Squirrel-macOS.dmg` (~40MB)
+- **Windows**: `Squirrel-Windows.exe` (~35MB)

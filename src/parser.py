@@ -121,7 +121,16 @@ class URLParser:
             'quiet': True,
             'no_warnings': True,
             'extract_flat': False,
+            'retries': 3,
+            'socket_timeout': 20,
         }
+
+    def _build_ydl_opts(self, cookies_from_browser: Optional[str] = None) -> dict:
+        """构建 yt-dlp 选项"""
+        opts = dict(self._ydl_opts)
+        if cookies_from_browser:
+            opts['cookiesfrombrowser'] = cookies_from_browser
+        return opts
 
     def identify_platform(self, url: str) -> tuple:
         """
@@ -240,7 +249,7 @@ class URLParser:
             return {'error': '不支持的 URL 格式，请输入 YouTube 或 X.com 链接'}
 
         try:
-            with yt_dlp.YoutubeDL(self._ydl_opts) as ydl:
+            with yt_dlp.YoutubeDL(self._build_ydl_opts()) as ydl:
                 info = ydl.extract_info(url, download=False)
 
                 if info is None:
@@ -269,12 +278,39 @@ class URLParser:
 
         except yt_dlp.utils.DownloadError as e:
             error_msg = str(e)
+            if platform == Platform.TWITTER:
+                for browser in ['chrome', 'edge', 'brave', 'firefox', 'safari']:
+                    try:
+                        with yt_dlp.YoutubeDL(self._build_ydl_opts(browser)) as ydl:
+                            info = ydl.extract_info(url, download=False)
+                            if info is None:
+                                continue
+                            formats = self._parse_formats(info.get('formats', []))
+                            video_info = VideoInfo(
+                                url=url,
+                                platform=platform,
+                                video_id=video_id,
+                                title=info.get('title', '未知标题'),
+                                description=info.get('description', ''),
+                                thumbnail=info.get('thumbnail', ''),
+                                duration=info.get('duration', 0),
+                                channel=info.get('uploader', info.get('channel', '')),
+                                channel_url=info.get('uploader_url', info.get('channel_url', '')),
+                                view_count=info.get('view_count', 0),
+                                like_count=info.get('like_count', 0),
+                                upload_date=info.get('upload_date', ''),
+                                formats=formats,
+                            )
+                            return video_info.to_dict()
+                    except Exception:
+                        continue
+
             if 'Video unavailable' in error_msg:
                 return {'error': '视频不可用或已被删除'}
             elif 'Private video' in error_msg:
                 return {'error': '这是一个私密视频，无法访问'}
             elif 'Sign in' in error_msg:
-                return {'error': '此视频需要登录才能观看'}
+                return {'error': '此视频需要登录才能观看，请在浏览器中登录 X.com 后重试'}
             else:
                 return {'error': f'获取视频信息失败: {error_msg}'}
         except Exception as e:

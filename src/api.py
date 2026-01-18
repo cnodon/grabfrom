@@ -4,6 +4,8 @@ JavaScript Bridge API 模块
 为 pywebview 提供前后端通信接口
 """
 
+import json
+import shutil
 import webview
 from pathlib import Path
 from typing import Optional
@@ -14,7 +16,7 @@ from src.downloader import get_download_manager
 from src.utils import open_folder as util_open_folder
 
 
-class GrabFromAPI:
+class SquirrelAPI:
     """
     pywebview JavaScript API 类
     所有公开方法都可以从前端 JavaScript 调用
@@ -38,7 +40,8 @@ class GrabFromAPI:
         """下载进度更新回调"""
         if self._window:
             # 通过 evaluate_js 推送进度到前端
-            js_code = f"window.onDownloadProgress && window.onDownloadProgress({task_data})"
+            payload = json.dumps(task_data, ensure_ascii=False)
+            js_code = f"window.onDownloadProgress && window.onDownloadProgress({payload})"
             try:
                 self._window.evaluate_js(js_code)
             except Exception:
@@ -91,7 +94,11 @@ class GrabFromAPI:
         format_id: str,
         output_format: str,
         title: str,
-        thumbnail: str = ""
+        thumbnail: str = "",
+        include_audio: bool = True,
+        has_audio: bool = True,
+        has_video: bool = True,
+        format_ext: str = ""
     ) -> dict:
         """
         开始下载任务
@@ -102,6 +109,10 @@ class GrabFromAPI:
             output_format: 输出格式 (mp4, webm, mp3, m4a)
             title: 视频标题
             thumbnail: 缩略图 URL
+            include_audio: 是否包含音频
+            has_audio: 选中格式是否包含音频
+            has_video: 选中格式是否包含视频
+            format_ext: 选中格式的扩展名
 
         Returns:
             {'success': bool, 'task_id': str} 或 {'error': str}
@@ -113,6 +124,10 @@ class GrabFromAPI:
                 output_format=output_format,
                 title=title,
                 thumbnail=thumbnail,
+                include_audio=include_audio,
+                has_audio=has_audio,
+                has_video=has_video,
+                format_ext=format_ext,
             )
             return {'success': True, 'task_id': task_id}
         except Exception as e:
@@ -315,12 +330,16 @@ class GrabFromAPI:
             {'success': bool}
         """
         file_path = Path(filepath)
-        if not file_path.exists():
-            return {'success': False, 'error': '文件不存在'}
+        if file_path.exists():
+            success = util_open_folder(file_path.parent)
+            return {'success': success}
 
-        # 打开文件所在目录
-        success = util_open_folder(file_path.parent)
-        return {'success': success}
+        # 文件不存在时，尝试打开所在目录或默认下载目录
+        fallback_dir = file_path.parent if file_path.parent.exists() else self._config.download_path
+        success = util_open_folder(fallback_dir)
+        if success:
+            return {'success': True, 'warning': '文件不存在，已打开下载目录'}
+        return {'success': False, 'error': '文件不存在'}
 
     # ==================== 应用信息 ====================
 
@@ -333,7 +352,8 @@ class GrabFromAPI:
         """
         from src import __version__
         return {
-            'name': 'GrabFrom',
+            'name': 'Squirrel',
             'version': __version__,
             'download_path': str(self._config.download_path),
+            'ffmpeg_available': shutil.which('ffmpeg') is not None,
         }

@@ -7,6 +7,7 @@
 import uuid
 import threading
 import time
+import shutil
 from pathlib import Path
 from typing import Optional, Callable, Dict
 from dataclasses import dataclass, field
@@ -15,7 +16,7 @@ from enum import Enum
 import yt_dlp
 
 from src.config import get_config
-from src.utils import sanitize_filename, get_unique_filepath, format_size, format_speed
+from src.utils import sanitize_filename, get_unique_filepath, format_size, format_speed, format_eta
 
 
 class TaskStatus(Enum):
@@ -47,6 +48,7 @@ class DownloadProgress:
             'speed': self.speed,
             'speed_str': format_speed(self.speed),
             'eta': self.eta,
+            'eta_str': format_eta(self.eta),
             'percent': self.percent,
             'filename': self.filename,
         }
@@ -61,6 +63,10 @@ class DownloadTask:
     thumbnail: str = ""
     format_id: str = "best"
     output_format: str = "mp4"  # mp4, webm, mp3, m4a
+    include_audio: bool = True
+    has_audio: bool = True
+    has_video: bool = True
+    format_ext: str = ""
     output_path: Optional[Path] = None
     status: TaskStatus = TaskStatus.PENDING
     progress: DownloadProgress = field(default_factory=DownloadProgress)
@@ -76,6 +82,10 @@ class DownloadTask:
             'thumbnail': self.thumbnail,
             'format_id': self.format_id,
             'output_format': self.output_format,
+            'include_audio': self.include_audio,
+            'has_audio': self.has_audio,
+            'has_video': self.has_video,
+            'format_ext': self.format_ext,
             'output_path': str(self.output_path) if self.output_path else None,
             'status': self.status.value,
             'progress': self.progress.to_dict(),
@@ -119,7 +129,11 @@ class DownloadManager:
         format_id: str,
         output_format: str,
         title: str,
-        thumbnail: str = ""
+        thumbnail: str = "",
+        include_audio: bool = True,
+        has_audio: bool = True,
+        has_video: bool = True,
+        format_ext: str = ""
     ) -> str:
         """
         创建下载任务
@@ -143,6 +157,10 @@ class DownloadManager:
             thumbnail=thumbnail,
             format_id=format_id,
             output_format=output_format,
+            include_audio=include_audio,
+            has_audio=has_audio,
+            has_video=has_video,
+            format_ext=format_ext,
         )
 
         with self._lock:
@@ -191,6 +209,21 @@ class DownloadManager:
 
             task.output_path = output_file
 
+            # 没有 ffmpeg 时，避免输出扩展名与实际格式不一致
+            ffmpeg_available = shutil.which('ffmpeg') is not None
+            if (
+                not ffmpeg_available
+                and task.include_audio
+                and task.has_audio
+                and task.has_video
+                and task.format_ext
+                and task.format_ext != task.output_format
+            ):
+                filename = f"{safe_title}.{task.format_ext}"
+                output_file = get_unique_filepath(download_path, filename)
+                task.output_format = task.format_ext
+                task.output_path = output_file
+
             # 构建 yt-dlp 选项
             ydl_opts = self._build_ydl_opts(task_id, task, output_file)
 
@@ -208,6 +241,7 @@ class DownloadManager:
                     task.status = TaskStatus.COMPLETED
                     task.completed_at = time.time()
                     task.progress.percent = 100.0
+                    self._cleanup_temp_files(task)
 
             except yt_dlp.utils.DownloadError as e:
                 task.status = TaskStatus.FAILED
@@ -220,6 +254,32 @@ class DownloadManager:
 
         finally:
             self._semaphore.release()
+
+    def _cleanup_temp_files(self, task: DownloadTask) -> None:
+        """清理临时下载文件"""
+        if not task.output_path:
+            return
+
+        output_path = Path(task.output_path)
+        if not output_path.parent.exists():
+            return
+
+        prefix = output_path.stem
+        for entry in output_path.parent.iterdir():
+            if not entry.is_file():
+                continue
+            name = entry.name
+            if name in (f"{prefix}.part", f"{prefix}.ytdl"):
+                try:
+                    entry.unlink()
+                except OSError:
+                    pass
+                continue
+            if name.startswith(f"{prefix}.") and (name.endswith(".part") or name.endswith(".ytdl")):
+                try:
+                    entry.unlink()
+                except OSError:
+                    pass
 
     def _build_ydl_opts(self, task_id: str, task: DownloadTask, output_file: Path) -> dict:
         """构建 yt-dlp 选项"""
@@ -241,6 +301,8 @@ class DownloadManager:
                 task.progress.speed = d.get('speed', 0) or 0
                 task.progress.eta = d.get('eta')
                 task.progress.filename = d.get('filename', '')
+                if task.progress.filename:
+                    task.output_path = Path(task.progress.filename)
 
                 if task.progress.total_bytes > 0:
                     task.progress.percent = (
@@ -251,6 +313,8 @@ class DownloadManager:
 
             elif d['status'] == 'finished':
                 task.progress.percent = 100.0
+                if d.get('filename'):
+                    task.output_path = Path(d.get('filename'))
                 self._notify_progress(task_id)
 
         # 基础选项
@@ -259,34 +323,50 @@ class DownloadManager:
             'progress_hooks': [progress_hook],
             'quiet': True,
             'no_warnings': True,
+            'retries': 5,
+            'fragment_retries': 5,
+            'socket_timeout': 20,
         }
+
+        ffmpeg_available = shutil.which('ffmpeg') is not None
 
         # 根据输出格式设置
         if task.output_format in ['mp3', 'm4a', 'flac']:
-            # 音频格式
+            if not ffmpeg_available:
+                raise Exception("需要安装 ffmpeg 才能提取音频")
+
             opts['format'] = 'bestaudio/best'
             opts['postprocessors'] = [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': task.output_format,
                 'preferredquality': '320' if task.output_format == 'mp3' else None,
             }]
-        else:
-            # 视频格式
-            if task.format_id and task.format_id != 'best':
-                # 选择指定格式 + 最佳音频
-                opts['format'] = f"{task.format_id}+bestaudio/best"
-            else:
-                opts['format'] = 'bestvideo+bestaudio/best'
+            return opts
 
-            # 合并为指定格式
-            if task.output_format == 'mp4':
-                opts['merge_output_format'] = 'mp4'
-                opts['postprocessors'] = [{
-                    'key': 'FFmpegVideoConvertor',
-                    'preferedformat': 'mp4',
-                }]
-            elif task.output_format == 'webm':
-                opts['merge_output_format'] = 'webm'
+        # 视频格式
+        if task.include_audio:
+            if task.has_audio and task.has_video:
+                opts['format'] = task.format_id or 'best'
+            else:
+                if not ffmpeg_available:
+                    raise Exception("需要安装 ffmpeg 才能合并音视频")
+                if task.format_id and task.format_id != 'best':
+                    opts['format'] = f"{task.format_id}+bestaudio/best"
+                else:
+                    opts['format'] = 'bestvideo+bestaudio/best'
+
+            if ffmpeg_available and task.output_format in ['mp4', 'webm']:
+                opts['merge_output_format'] = task.output_format
+                if task.output_format == 'mp4':
+                    opts['postprocessors'] = [{
+                        'key': 'FFmpegVideoConvertor',
+                        'preferedformat': 'mp4',
+                    }]
+        else:
+            if task.format_id and task.format_id != 'best':
+                opts['format'] = task.format_id
+            else:
+                opts['format'] = 'bestvideo/best'
 
         return opts
 

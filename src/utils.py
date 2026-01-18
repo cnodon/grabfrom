@@ -47,6 +47,11 @@ def format_duration(seconds: int) -> str:
     Returns:
         格式化后的字符串，如 "10:24" 或 "1:30:45"
     """
+    if seconds is None:
+        return "0:00"
+
+    seconds = int(seconds)
+
     if seconds < 0:
         return "0:00"
 
@@ -82,7 +87,11 @@ def format_eta(seconds: Optional[int]) -> str:
     Returns:
         格式化后的字符串，如 "2 mins remaining"
     """
-    if seconds is None or seconds < 0:
+    if seconds is None:
+        return "计算中..."
+
+    seconds = int(seconds)
+    if seconds < 0:
         return "计算中..."
 
     if seconds < 60:

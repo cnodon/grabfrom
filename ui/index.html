@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Squirrel</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#E31837",
+              "background-light": "#fafafa",
+              "background-dark": "#1c1e22",
+            },
+            fontFamily: {
+              display: ["Manrope", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.25rem",
+              lg: "0.5rem",
+              xl: "0.75rem",
+              full: "9999px",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body
+    class="bg-background-light dark:bg-background-dark font-display text-[#121617] dark:text-gray-100 antialiased"
+  >
+    <div id="app" class="h-screen w-full overflow-hidden">
+      <!-- Home / Launch -->
+      <div data-view="view-home" class="h-full">
+        <div class="flex h-full w-full overflow-hidden">
+          <aside
+            class="w-64 sidebar-blur border-r border-gray-200 dark:border-gray-800 flex flex-col justify-between p-6 z-10"
+          >
+            <div class="flex flex-col gap-8">
+              <div class="flex items-center gap-3">
+                <img
+                  src="../assets/app_icon.png"
+                  alt="Squirrel"
+                  class="size-10 rounded-xl shadow-lg shadow-primary/20"
+                />
+                <div class="flex flex-col">
+                  <h1
+                    class="text-[#121617] dark:text-white text-lg font-bold leading-tight"
+                  >
+                    Squirrel
+                  </h1>
+                  <p
+                    class="text-[#658086] dark:text-gray-400 text-xs font-medium"
+                    id="app-version"
+                  >
+                    v1.0.0
+                  </p>
+                </div>
+              </div>
+              <nav class="flex flex-col gap-1">
+                <a
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold"
+                  href="#"
+                  data-route="home"
+                  data-nav="home"
+                >
+                  <span class="material-symbols-outlined">home</span>
+                  <span class="text-sm">Home</span>
+                </a>
+                <a
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                  href="#"
+                  data-route="downloads"
+                  data-nav="downloads"
+                >
+                  <span class="material-symbols-outlined">dashboard</span>
+                  <span class="text-sm">Dashboard</span>
+                  <span
+                    class="ml-auto bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full"
+                    id="home-download-count"
+                    >0</span
+                  >
+                </a>
+              </nav>
+            </div>
+            <div class="flex flex-col gap-4">
+              <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                href="#"
+                data-route="settings"
+                data-nav="settings"
+              >
+                <span class="material-symbols-outlined">settings</span>
+                <span class="text-sm font-semibold">Settings</span>
+              </a>
+              <div
+                class="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5"
+              >
+                <p class="text-xs text-[#658086] mb-2 font-medium">
+                  Storage Used
+                </p>
+                <div
+                  class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div class="h-full bg-primary w-1/3"></div>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-2 text-right">
+                  0 GB / --
+                </p>
+              </div>
+            </div>
+          </aside>
+          <main
+            class="flex-1 relative flex flex-col items-center justify-center p-8"
+          >
+            <div class="absolute top-6 left-8 flex gap-2">
+              <div class="size-3 rounded-full bg-red-400/80"></div>
+              <div class="size-3 rounded-full bg-yellow-400/80"></div>
+              <div class="size-3 rounded-full bg-green-400/80"></div>
+            </div>
+            <div class="w-full max-w-2xl flex flex-col items-center text-center">
+              <div class="mb-8">
+                <h2
+                  class="text-[#121617] dark:text-white text-4xl font-extrabold tracking-tight mb-3"
+                >
+                  Grab anything from
+                  <span class="text-primary italic">anywhere</span>.
+                </h2>
+                <p
+                  class="text-[#658086] dark:text-gray-400 text-lg font-medium"
+                >
+                  Paste a URL to start your high-quality download.
+                </p>
+              </div>
+              <div
+                class="w-full mac-shadow bg-white dark:bg-[#25282c] p-2 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center gap-2 mb-4"
+              >
+                <div class="pl-4 text-gray-400">
+                  <span class="material-symbols-outlined">link</span>
+                </div>
+                <input
+                  id="home-url-input"
+                  class="flex-1 bg-transparent border-none focus:ring-0 text-[#121617] dark:text-white placeholder:text-gray-400 text-base py-4"
+                  placeholder="Paste YouTube or X link here..."
+                  type="text"
+                />
+                <button
+                  id="home-download-btn"
+                  class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95"
+                >
+                  <span class="material-symbols-outlined">rocket_launch</span>
+                  Launch
+                </button>
+              </div>
+              <div id="launch-analysis" class="hidden w-full max-w-2xl mb-4">
+                <div
+                  class="flex items-center gap-3 bg-white dark:bg-[#25282c] border border-gray-200 dark:border-gray-800 rounded-xl px-4 py-2"
+                >
+                  <div class="launch-scan-track">
+                    <div class="launch-scan-bar"></div>
+                  </div>
+                  <p class="text-xs text-gray-500 font-semibold">
+                    Analyzing network stream...
+                  </p>
+                </div>
+              </div>
+              <p
+                id="home-error"
+                class="text-xs text-red-500 font-semibold hidden"
+              ></p>
+              <div class="flex flex-col items-center gap-6 mt-8">
+                <p
+                  class="text-[11px] uppercase tracking-widest font-bold text-[#658086]"
+                >
+                  Compatible Platforms
+                </p>
+                <div
+                  class="flex gap-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
+                >
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="size-8 rounded-lg bg-red-600 flex items-center justify-center text-white"
+                    >
+                      <span class="material-symbols-outlined text-xl"
+                        >play_circle</span
+                      >
+                    </div>
+                    <span
+                      class="text-sm font-semibold text-[#121617] dark:text-white"
+                      >YouTube</span
+                    >
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div
+                      class="size-8 rounded-lg bg-black flex items-center justify-center text-white"
+                    >
+                      <span class="font-bold text-xs italic">X</span>
+                    </div>
+                    <span
+                      class="text-sm font-semibold text-[#121617] dark:text-white"
+                      >X.com</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="absolute bottom-0 right-0 p-12 opacity-10">
+              <span class="material-symbols-outlined text-[220px]"
+                >cloud_download</span
+              >
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <!-- Video Details -->
+      <div data-view="view-video-details" class="h-full hidden">
+        <div class="flex h-screen overflow-hidden">
+          <aside
+            class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark flex flex-col"
+          >
+            <div class="p-6 flex items-center gap-3">
+              <img
+                src="../assets/app_icon.png"
+                alt="Squirrel"
+                class="size-10 rounded-lg"
+              />
+              <div>
+                <h1 class="text-lg font-bold leading-tight">Squirrel</h1>
+                <p class="text-xs text-gray-500">Video Downloader</p>
+              </div>
+            </div>
+            <nav class="flex-1 px-4 space-y-1">
+              <a
+                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                href="#"
+                data-route="home"
+                data-nav="home"
+              >
+                <span class="material-symbols-outlined">home</span> Home
+              </a>
+              <a
+                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+                href="#"
+                data-route="downloads"
+                data-nav="downloads"
+              >
+                <span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+              </a>
+            </nav>
+            <div class="p-4 mt-auto border-t border-gray-100 dark:border-gray-800">
+              <a
+                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg bg-primary/10 text-primary dark:bg-primary/20"
+                href="#"
+                data-route="settings"
+                data-nav="settings"
+              >
+                <span class="material-symbols-outlined">settings</span> Settings
+              </a>
+            </div>
+          </aside>
+          <main
+            class="flex-1 flex flex-col overflow-hidden bg-background-light dark:bg-background-dark"
+          >
+            <header
+              class="h-16 flex items-center justify-between px-8 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark/50 backdrop-blur-md"
+            >
+              <div class="flex items-center gap-2 text-sm font-medium">
+                <a
+                  class="text-gray-500 hover:text-primary flex items-center gap-1"
+                  href="#"
+                  data-route="home"
+                >
+                  <span class="material-symbols-outlined text-sm"
+                    >arrow_back</span
+                  >
+                  Search
+                </a>
+                <span class="text-gray-300">/</span>
+                <span class="text-gray-900 dark:text-white">Video Details</span>
+              </div>
+              <div class="flex items-center gap-4">
+                <button
+                  class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                  id="details-refresh"
+                >
+                  <span class="material-symbols-outlined">refresh</span>
+                </button>
+              </div>
+            </header>
+            <div class="flex-1 overflow-y-auto p-8">
+              <div class="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
+                <div class="lg:w-2/5 space-y-6">
+                  <div
+                    class="bg-white dark:bg-background-dark rounded-xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-800"
+                  >
+                    <div
+                      class="relative aspect-video bg-gray-900 group overflow-hidden"
+                    >
+                      <div
+                        id="details-thumbnail"
+                        class="absolute inset-0 bg-cover bg-center"
+                        style="background-image: linear-gradient(135deg, #E31837, #8A0F20);"
+                      ></div>
+                      <div
+                        class="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"
+                      ></div>
+                      <div
+                        id="details-duration"
+                        class="absolute bottom-3 right-3 bg-black/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded"
+                      >
+                        0:00
+                      </div>
+                      <div
+                        class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <span class="material-symbols-outlined text-white text-6xl"
+                          >play_circle</span
+                        >
+                      </div>
+                    </div>
+                    <div class="p-6">
+                      <p
+                        id="details-source"
+                        class="text-[10px] font-bold text-primary uppercase tracking-widest mb-2"
+                      >
+                        Source: --
+                      </p>
+                      <h2
+                        id="details-title"
+                        class="text-2xl font-bold leading-tight mb-4"
+                      >
+                        --
+                      </h2>
+                      <div
+                        class="flex items-center gap-3 pb-4 border-b border-gray-50 dark:border-gray-800"
+                      >
+                        <div
+                          class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center"
+                        >
+                          <span class="material-symbols-outlined text-primary"
+                            >landscape</span
+                          >
+                        </div>
+                        <div>
+                          <p
+                            id="details-channel"
+                            class="text-sm font-semibold"
+                          >
+                            --
+                          </p>
+                          <p
+                            id="details-meta"
+                            class="text-xs text-gray-500"
+                          >
+                            --
+                          </p>
+                        </div>
+                      </div>
+                      <div
+                        class="pt-4 flex items-center justify-between text-xs text-gray-500"
+                      >
+                        <div class="flex items-center gap-4">
+                          <span class="flex items-center gap-1"
+                            ><span class="material-symbols-outlined text-sm"
+                              >visibility</span
+                            >
+                            <span id="details-views">0</span></span
+                          >
+                          <span class="flex items-center gap-1"
+                            ><span class="material-symbols-outlined text-sm"
+                              >thumb_up</span
+                            >
+                            <span id="details-likes">0</span></span
+                          >
+                        </div>
+                        <button
+                          class="flex items-center gap-1 text-primary font-semibold"
+                          id="details-copy-url"
+                        >
+                          <span class="material-symbols-outlined text-sm"
+                            >share</span
+                          >
+                          Copy Link
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="bg-primary/5 dark:bg-primary/10 p-4 rounded-xl border border-primary/10"
+                  >
+                    <div class="flex gap-3">
+                      <span class="material-symbols-outlined text-primary"
+                        >info</span
+                      >
+                      <p
+                        id="details-tip"
+                        class="text-xs leading-relaxed text-gray-600 dark:text-gray-400"
+                      >
+                        Squirrel Engine: choose Max Quality for a quick best
+                        pick, or show all streams to decide manually.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div class="lg:w-3/5 space-y-6">
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div
+                      class="bg-white dark:bg-background-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800"
+                    >
+                      <p
+                        class="text-xs font-bold text-gray-400 uppercase mb-3 px-1"
+                      >
+                        Quality Profile
+                      </p>
+                      <div
+                        class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg"
+                        id="quality-profile"
+                      >
+                        <button
+                          class="flex-1 py-1.5 text-xs font-bold bg-white dark:bg-gray-700 shadow-sm rounded-md text-gray-900 dark:text-white"
+                          data-quality="max"
+                        >
+                          Max Quality
+                        </button>
+                        <button
+                          class="flex-1 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400"
+                          data-quality="all"
+                        >
+                          All Available
+                        </button>
+                      </div>
+                    </div>
+                    <div
+                      class="bg-white dark:bg-background-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800"
+                    >
+                      <p
+                        class="text-xs font-bold text-gray-400 uppercase mb-3 px-1"
+                      >
+                        Output Format
+                      </p>
+                      <div
+                        class="flex bg-gray-100 dark:bg-gray-800 p-1 rounded-lg gap-1"
+                        id="output-format"
+                      >
+                        <button
+                          class="flex-1 py-1.5 text-[10px] font-bold bg-white dark:bg-gray-700 shadow-sm rounded-md text-gray-900 dark:text-white"
+                          data-output="video+audio"
+                        >
+                          Video+Audio
+                        </button>
+                        <button
+                          class="flex-1 py-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400"
+                          data-output="video-only"
+                        >
+                          Video Only
+                        </button>
+                        <button
+                          class="flex-1 py-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400"
+                          data-output="audio"
+                        >
+                          Audio
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="bg-white dark:bg-background-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 overflow-hidden"
+                  >
+                    <div
+                      class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-background-dark"
+                    >
+                      <h3 class="font-bold text-sm">Available Streams</h3>
+                      <div class="flex items-center gap-2">
+                        <span
+                          class="w-2 h-2 rounded-full bg-green-500 animate-pulse"
+                        ></span>
+                        <span class="text-[10px] text-gray-500 font-medium"
+                          >Ready</span
+                        >
+                      </div>
+                    </div>
+                    <div
+                      id="streams-list"
+                      class="divide-y divide-gray-50 dark:divide-gray-800"
+                    ></div>
+                  </div>
+                  <div
+                    class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-lg border border-primary/10 flex items-center justify-between"
+                  >
+                    <div>
+                      <p
+                        class="text-xs font-semibold text-gray-500 uppercase"
+                      >
+                        Total Selected
+                      </p>
+                      <p class="text-xl font-bold" id="selection-summary">
+                        0 Stream - 0 MB
+                      </p>
+                      <p
+                        class="text-[10px] text-gray-400 mt-1 flex items-center gap-1"
+                      >
+                        <span class="material-symbols-outlined text-[10px]"
+                          >hard_drive</span
+                        >
+                        Free space depends on your disk.
+                      </p>
+                    </div>
+                    <button
+                      id="download-all-btn"
+                      class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled
+                    >
+                      <span class="material-symbols-outlined"
+                        >download_for_offline</span
+                      >
+                      Download All
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <!-- Downloads Dashboard -->
+      <div data-view="view-downloads" class="h-full hidden">
+        <div class="flex h-screen overflow-hidden">
+          <aside
+            class="w-64 border-r border-[#e5e7eb] dark:border-[#333] bg-white/80 dark:bg-background-dark/80 sidebar-blur flex flex-col justify-between p-4 z-20"
+          >
+            <div class="flex flex-col gap-8">
+              <div class="flex items-center gap-3 px-2">
+                <img
+                  src="../assets/app_icon.png"
+                  alt="Squirrel"
+                  class="size-10 rounded-xl"
+                />
+                <div class="flex flex-col">
+                  <h1
+                    class="text-[#121617] dark:text-white text-base font-bold leading-tight"
+                  >
+                    Squirrel
+                  </h1>
+                  <p class="text-[#658086] text-xs font-medium">
+                    Desktop Video Utility
+                  </p>
+                </div>
+              </div>
+              <nav class="flex flex-col gap-1">
+                <a
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  href="#"
+                  data-route="home"
+                  data-nav="home"
+                >
+                  <span class="material-symbols-outlined text-[22px]"
+                    >home</span
+                  >
+                  <p class="text-sm font-medium">Home</p>
+                </a>
+                <a
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary"
+                  href="#"
+                  data-route="downloads"
+                  data-nav="downloads"
+                >
+                  <span
+                    class="material-symbols-outlined text-[22px] font-variation-fill-1"
+                    >dashboard</span
+                  >
+                  <p class="text-sm font-semibold">Dashboard</p>
+                </a>
+              </nav>
+            </div>
+            <div class="flex flex-col gap-3">
+              <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                href="#"
+                data-route="settings"
+                data-nav="settings"
+              >
+                <span class="material-symbols-outlined text-[22px]"
+                  >settings</span
+                >
+                <p class="text-sm font-medium">Settings</p>
+              </a>
+              <div class="p-4 bg-primary/5 rounded-xl border border-primary/10">
+              <div class="flex justify-between items-center mb-2">
+                <span
+                  class="text-[10px] uppercase tracking-wider font-bold text-primary/70"
+                  >Total Speed</span
+                >
+                <span class="text-xs font-bold text-primary" id="total-speed"
+                  >0 KB/s</span
+                >
+              </div>
+              <div
+                class="w-full bg-primary/10 h-1 rounded-full overflow-hidden"
+              >
+                <div class="bg-primary h-full w-1/6" id="speed-bar"></div>
+              </div>
+              </div>
+            </div>
+          </aside>
+          <main class="flex-1 flex flex-col relative overflow-hidden">
+            <header
+              class="h-16 flex items-center justify-between px-8 border-b border-[#e5e7eb] dark:border-[#333] bg-white dark:bg-[#1c1e22]"
+            >
+              <div class="flex items-center gap-4">
+                <button
+                  class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
+                  data-action="route-back"
+                  title="Back"
+                >
+                  <span class="material-symbols-outlined">arrow_back</span>
+                </button>
+                <h2
+                  class="text-xl font-bold text-[#121617] dark:text-white"
+                >
+                  Downloads
+                </h2>
+                <div class="flex gap-1 ml-4">
+                  <div
+                    class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold"
+                    id="stat-active"
+                  >
+                    0 Active
+                  </div>
+                  <div
+                    class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 text-[11px] font-bold"
+                    id="stat-finished"
+                  >
+                    0 Finished
+                  </div>
+                </div>
+              </div>
+              <div class="flex-1"></div>
+            </header>
+            <div class="px-8 py-4 flex gap-2">
+              <button
+                class="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-semibold"
+                data-filter="all"
+              >
+                All Tasks
+              </button>
+              <button
+                class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
+                data-filter="downloading"
+              >
+                Downloading
+              </button>
+              <button
+                class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
+                data-filter="paused"
+              >
+                Paused
+              </button>
+              <button
+                class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
+                data-filter="completed"
+              >
+                Completed
+              </button>
+            </div>
+            <div class="flex-1 overflow-y-auto px-8 pb-32">
+              <div id="tasks-list" class="flex flex-col gap-3"></div>
+            </div>
+            <footer
+              class="absolute bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-[#1c1e22]/90 border-t border-[#e5e7eb] dark:border-[#333] sidebar-blur px-8 flex items-center justify-between z-10"
+            >
+              <div class="flex items-center gap-3">
+                <div
+                  class="size-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500"
+                >
+                  <span class="material-symbols-outlined text-xl">folder</span>
+                </div>
+                <div>
+                  <p
+                    class="text-[10px] text-[#658086] font-bold uppercase tracking-wider leading-none mb-1"
+                  >
+                    Save Path
+                  </p>
+                  <p
+                    class="text-sm font-medium text-[#121617] dark:text-white"
+                    id="dashboard-save-path"
+                  >
+                    --
+                  </p>
+                </div>
+                <button
+                  class="ml-2 px-3 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                  id="dashboard-change-path"
+                >
+                  Change
+                </button>
+              </div>
+              <div class="flex items-center gap-3">
+                <button
+                  id="pause-all-btn"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-[#121617] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg"
+                    >pause_circle</span
+                  >
+                  <span>Pause All</span>
+                </button>
+                <button
+                  id="clear-finished-btn"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-[#121617] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg"
+                    >clear_all</span
+                  >
+                  <span>Clear Finished</span>
+                </button>
+              </div>
+            </footer>
+          </main>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div data-view="view-settings" class="h-full hidden">
+        <div class="flex h-screen w-full overflow-hidden">
+          <aside
+            class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-background-dark/70 sidebar-blur flex flex-col justify-between p-6"
+          >
+            <div class="space-y-8">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <img
+                    src="../assets/app_icon.png"
+                    alt="Squirrel"
+                    class="w-8 h-8 rounded-lg"
+                  />
+                  <h1
+                    class="text-xl font-extrabold tracking-tight text-[#121617] dark:text-white"
+                  >
+                    Squirrel
+                  </h1>
+                </div>
+                <p
+                  class="text-xs font-semibold text-gray-400 uppercase tracking-widest pl-1 mt-4"
+                >
+                  Preferences
+                </p>
+              </div>
+              <nav class="flex flex-col gap-1">
+                <a
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  href="#"
+                  data-route="home"
+                  data-nav="home"
+                >
+                  <span class="material-symbols-outlined">home</span>
+                  <span class="text-sm font-medium">Home</span>
+                </a>
+                <a
+                  class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                  href="#"
+                  data-route="downloads"
+                  data-nav="downloads"
+                >
+                  <span class="material-symbols-outlined">dashboard</span>
+                  <span class="text-sm font-medium">Dashboard</span>
+                </a>
+              </nav>
+            </div>
+            <div
+              class="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-4"
+            >
+              <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary"
+                href="#"
+                data-route="settings"
+                data-nav="settings"
+              >
+                <span class="material-symbols-outlined">settings</span>
+                <span class="text-sm font-semibold">Settings</span>
+              </a>
+              <div
+                class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800"
+              >
+                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">
+                  Status
+                </p>
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                  <p
+                    class="text-xs font-medium text-gray-600 dark:text-gray-400"
+                    id="settings-version"
+                  >
+                    Up to date (v1.0.0)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </aside>
+          <main class="flex-1 overflow-y-auto bg-white dark:bg-background-dark">
+            <div class="max-w-[800px] mx-auto py-12 px-10 space-y-12">
+              <header class="space-y-2">
+                <h2
+                  class="text-4xl font-black tracking-tight text-[#121617] dark:text-white"
+                >
+                  General
+                </h2>
+                <p class="text-gray-500 text-lg">
+                  Manage your download preferences and application behavior.
+                </p>
+              </header>
+              <hr class="border-gray-100 dark:border-gray-800" />
+              <section class="space-y-6">
+                <div>
+                  <h3
+                    class="text-xl font-bold text-[#121617] dark:text-white"
+                  >
+                    Download Location
+                  </h3>
+                  <p class="text-sm text-gray-400">
+                    Choose where your downloaded files will be stored.
+                  </p>
+                </div>
+                <div class="flex items-end gap-3 max-w-2xl">
+                  <label class="flex-1 space-y-2">
+                    <span
+                      class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                      >Default save path</span
+                    >
+                    <div class="relative flex items-center">
+                      <input
+                        id="settings-download-path"
+                        class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium text-gray-600 dark:text-gray-400 focus:outline-none"
+                        readonly
+                        type="text"
+                        value="--"
+                      />
+                      <div class="absolute right-3 text-gray-400">
+                        <span class="material-symbols-outlined">folder</span>
+                      </div>
+                    </div>
+                  </label>
+                  <button
+                    id="settings-change-path"
+                    class="h-12 px-6 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-bold rounded-xl transition-colors"
+                  >
+                    Change...
+                  </button>
+                </div>
+              </section>
+              <section class="space-y-6 pt-4">
+                <div>
+                  <h3
+                    class="text-xl font-bold text-[#121617] dark:text-white"
+                  >
+                    Quality Preferences
+                  </h3>
+                  <p class="text-sm text-gray-400">
+                    Set the default resolution for new downloads.
+                  </p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2">
+                    <label
+                      class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                      >Default Video Quality</label
+                    >
+                    <select
+                      id="settings-video-quality"
+                      class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary"
+                    >
+                      <option value="best">Best Available (Auto)</option>
+                      <option value="2160">4K UHD (2160p)</option>
+                      <option value="1440">2K QHD (1440p)</option>
+                      <option value="1080">Full HD (1080p)</option>
+                      <option value="720">HD (720p)</option>
+                    </select>
+                  </div>
+                  <div class="space-y-2">
+                    <label
+                      class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                      >Preferred Audio Format</label
+                    >
+                    <select
+                      id="settings-audio-format"
+                      class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary"
+                    >
+                      <option value="mp3">High Quality (MP3 320kbps)</option>
+                      <option value="flac">Lossless (FLAC)</option>
+                      <option value="m4a">Standard (M4A)</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+              <hr class="border-gray-100 dark:border-gray-800" />
+              <section class="space-y-6">
+                <div>
+                  <h3
+                    class="text-xl font-bold text-[#121617] dark:text-white"
+                  >
+                    App Behavior
+                  </h3>
+                  <p class="text-sm text-gray-400">
+                    Control how the application interacts with your system.
+                  </p>
+                </div>
+                <div class="space-y-4">
+                  <div
+                    class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl"
+                  >
+                    <div class="space-y-0.5">
+                      <p
+                        class="text-sm font-bold text-[#121617] dark:text-white"
+                      >
+                        Launch at Startup
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        Automatically start Squirrel when you log in.
+                      </p>
+                    </div>
+                    <label class="toggle-container">
+                      <input
+                        id="toggle-startup"
+                        class="toggle-input"
+                        type="checkbox"
+                      />
+                      <svg
+                        class="toggle"
+                        viewBox="0 0 292 142"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          class="toggle-background"
+                          x="0"
+                          y="0"
+                          width="292"
+                          height="142"
+                          rx="71"
+                        />
+                        <g class="toggle-circle-center">
+                          <circle
+                            class="toggle-circle left"
+                            cx="71"
+                            cy="71"
+                            r="58"
+                            fill="#fff"
+                          />
+                          <circle
+                            class="toggle-circle right"
+                            cx="71"
+                            cy="71"
+                            r="58"
+                            fill="#fff"
+                          />
+                        </g>
+                        <circle
+                          class="toggle-icon off"
+                          cx="71"
+                          cy="71"
+                          r="12"
+                        />
+                        <path
+                          class="toggle-icon on"
+                          d="M206 74 l10 10 l22 -22 l-8 -8 l-14 14 l-2 -2 z"
+                        />
+                      </svg>
+                    </label>
+                  </div>
+                  <div
+                    class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl"
+                  >
+                    <div class="space-y-0.5">
+                      <p
+                        class="text-sm font-bold text-[#121617] dark:text-white"
+                      >
+                        Desktop Notifications
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        Show a notification when a download is finished.
+                      </p>
+                    </div>
+                    <label class="toggle-container">
+                      <input
+                        id="toggle-notifications"
+                        class="toggle-input"
+                        type="checkbox"
+                      />
+                      <svg
+                        class="toggle"
+                        viewBox="0 0 292 142"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          class="toggle-background"
+                          x="0"
+                          y="0"
+                          width="292"
+                          height="142"
+                          rx="71"
+                        />
+                        <g class="toggle-circle-center">
+                          <circle
+                            class="toggle-circle left"
+                            cx="71"
+                            cy="71"
+                            r="58"
+                            fill="#fff"
+                          />
+                          <circle
+                            class="toggle-circle right"
+                            cx="71"
+                            cy="71"
+                            r="58"
+                            fill="#fff"
+                          />
+                        </g>
+                        <circle
+                          class="toggle-icon off"
+                          cx="71"
+                          cy="71"
+                          r="12"
+                        />
+                        <path
+                          class="toggle-icon on"
+                          d="M206 74 l10 10 l22 -22 l-8 -8 l-14 14 l-2 -2 z"
+                        />
+                      </svg>
+                    </label>
+                  </div>
+                  <div
+                    class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/30 rounded-xl"
+                  >
+                    <div class="space-y-0.5">
+                      <p
+                        class="text-sm font-bold text-[#121617] dark:text-white"
+                      >
+                        Dark Mode
+                      </p>
+                      <p class="text-xs text-gray-500">
+                        Switch between light and dark visual styles.
+                      </p>
+                    </div>
+                    <label class="toggle-container">
+                      <input
+                        id="toggle-dark-mode"
+                        class="toggle-input"
+                        type="checkbox"
+                      />
+                      <svg
+                        class="toggle"
+                        viewBox="0 0 292 142"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <rect
+                          class="toggle-background"
+                          x="0"
+                          y="0"
+                          width="292"
+                          height="142"
+                          rx="71"
+                        />
+                        <g class="toggle-circle-center">
+                          <circle
+                            class="toggle-circle left"
+                            cx="71"
+                            cy="71"
+                            r="58"
+                            fill="#fff"
+                          />
+                          <circle
+                            class="toggle-circle right"
+                            cx="71"
+                            cy="71"
+                            r="58"
+                            fill="#fff"
+                          />
+                        </g>
+                        <circle
+                          class="toggle-icon off"
+                          cx="71"
+                          cy="71"
+                          r="12"
+                        />
+                        <path
+                          class="toggle-icon on"
+                          d="M206 74 l10 10 l22 -22 l-8 -8 l-14 14 l-2 -2 z"
+                        />
+                      </svg>
+                    </label>
+                  </div>
+                </div>
+                <div class="pt-4">
+                  <button
+                    class="w-full bg-primary hover:bg-primary/90 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20"
+                    id="check-updates-settings"
+                  >
+                    Check for Updates
+                  </button>
+                </div>
+              </section>
+              <section
+                class="mt-12 p-8 rounded-3xl bg-gradient-to-br from-[#E31837] to-[#8A0F20] text-white relative overflow-hidden group"
+              >
+                <div
+                  class="relative z-10 flex flex-col md:flex-row items-center gap-8"
+                >
+                  <div class="bg-white/20 p-4 rounded-2xl backdrop-blur-md">
+                    <span class="material-symbols-outlined text-6xl"
+                      >rocket_launch</span
+                    >
+                  </div>
+                  <div class="text-center md:text-left">
+                    <h4 class="text-2xl font-bold">Squirrel for Desktop</h4>
+                    <p class="text-white/80 mt-1" id="about-version">
+                      Version 1.0.0
+                    </p>
+                    <div class="flex gap-4 mt-4">
+                      <a
+                        class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+                        href="#"
+                        >Privacy Policy</a
+                      >
+                      <a
+                        class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+                        href="#"
+                        >Terms of Service</a
+                      >
+                      <a
+                        class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
+                        href="#"
+                        >Help Center</a
+                      >
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="absolute -right-8 -bottom-8 w-48 h-48 bg-white/10 rounded-full blur-3xl"
+                ></div>
+                <div class="absolute top-0 right-0 p-4">
+                  <span
+                    class="px-2 py-1 bg-white/20 rounded-lg text-[10px] font-bold uppercase backdrop-blur-sm"
+                    >Stable Release</span
+                  >
+                </div>
+              </section>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="toast-container"
+      class="fixed bottom-6 right-6 flex flex-col gap-3 z-50"
+    ></div>
+
+    <script src="js/api.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>
