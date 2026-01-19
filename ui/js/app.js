@@ -50,6 +50,7 @@ const App = {
       streamsList: get("streams-list"),
       downloadAllBtn: get("download-all-btn"),
       selectionSummary: get("selection-summary"),
+      detailsDiskSpace: get("details-disk-space"),
       tasksList: get("tasks-list"),
       tasksSearch: get("tasks-search"),
       statActive: get("stat-active"),
@@ -95,6 +96,7 @@ const App = {
     if (this.state.videoInfo) {
       this.populateDetails(this.state.videoInfo);
     }
+    this.refreshDiskInfo();
   },
 
   getString(path) {
@@ -212,9 +214,11 @@ const App = {
       this.toggleFormatSelection(row.dataset.formatId);
     });
 
-    this.elements.downloadAllBtn.addEventListener("click", () =>
-      this.downloadSelected()
-    );
+    if (this.elements.downloadAllBtn) {
+      this.elements.downloadAllBtn.addEventListener("click", () =>
+        this.downloadSelected()
+      );
+    }
 
     document.querySelectorAll("[data-filter]").forEach((button) => {
       button.addEventListener("click", (event) => {
@@ -281,10 +285,19 @@ const App = {
 
     this.elements.tasksList.addEventListener("click", (event) => {
       const action = event.target.closest("[data-task-action]");
-      if (!action) return;
-      const taskId = action.dataset.taskId;
-      const taskAction = action.dataset.taskAction;
-      this.handleTaskAction(taskId, taskAction);
+      if (action) {
+        const taskId = action.dataset.taskId;
+        const taskAction = action.dataset.taskAction;
+        this.handleTaskAction(taskId, taskAction);
+        return;
+      }
+
+      const row = event.target.closest("[data-task-url]");
+      if (!row) return;
+      const taskUrl = row.dataset.taskUrl;
+      if (taskUrl) {
+        this.parseUrl(taskUrl);
+      }
     });
 
     this.elements.settingsVideoQuality.addEventListener("change", () =>
@@ -368,6 +381,7 @@ const App = {
     const settings = await API.getSettings();
     this.state.settings = settings || {};
     this.applySettingsToUI();
+    await this.refreshDiskInfo();
   },
 
   applySettingsToUI() {
@@ -429,6 +443,7 @@ const App = {
     if (this.elements.dashboardSavePath) {
       this.elements.dashboardSavePath.textContent = path;
     }
+    this.refreshDiskInfo();
   },
 
   async loadTasks() {
@@ -546,6 +561,20 @@ const App = {
       .join("");
     this.elements.streamsList.innerHTML = rows;
     this.updateSelectionSummary();
+  },
+
+  async refreshDiskInfo() {
+    if (!this.elements.detailsDiskSpace) return;
+    const result = await API.getDiskInfo();
+    if (!result || !result.total_bytes) {
+      return;
+    }
+    const template =
+      STRINGS.ui?.details?.diskSpace || "Disk Free: {free} / {total}";
+    this.elements.detailsDiskSpace.textContent = this.formatString(template, {
+      free: this.formatBytes(result.free_bytes || 0),
+      total: this.formatBytes(result.total_bytes || 0),
+    });
   },
 
   renderStreamRow(format) {
@@ -677,7 +706,9 @@ const App = {
       count: selectedFormats.length,
       size: this.formatBytes(totalSize),
     });
-    this.elements.downloadAllBtn.disabled = selectedFormats.length === 0;
+    if (this.elements.downloadAllBtn) {
+      this.elements.downloadAllBtn.disabled = selectedFormats.length === 0;
+    }
   },
 
   async downloadSelected() {
@@ -801,9 +832,12 @@ const App = {
         : "--";
     const statusBadge = this.getStatusBadge(status);
     const actionButtons = this.getTaskActions(task, status);
+    const stageLabel = this.getStageLabel(task);
 
     return `
-      <div class="task-row group relative bg-white dark:bg-[#25282c] p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all">
+      <div class="task-row group relative bg-white dark:bg-[#25282c] p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all" data-task-url="${this.escapeHtml(
+        task.url
+      )}">
         <div class="flex items-center gap-4">
           <div class="relative size-16 shrink-0 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
             ${
@@ -839,6 +873,7 @@ const App = {
                     }
                   </div>`
                 : `<div class="flex items-center gap-4 mb-3">
+                    <span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">developer_board</span> ${stageLabel}</span>
                     <span class="text-[11px] text-[#658086] flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">speed</span> ${speedLabel}</span>
                     ${
                       isDownloading
@@ -896,6 +931,25 @@ const App = {
     return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
       STRINGS.labels?.statusPending || "Pending"
     )}</span>`;
+  },
+
+  getStageLabel(task) {
+    const stage = task.stage || task.status || "pending";
+    const labels = STRINGS.labels || {};
+    const stageMap = {
+      downloading_video: labels.stageDownloadingVideo || "Downloading video",
+      downloading_audio: labels.stageDownloadingAudio || "Downloading audio",
+      downloading: labels.stageDownloading || "Downloading",
+      merging: labels.stageMerging || "Assembling",
+      extracting_audio: labels.stageExtractingAudio || "Extracting audio",
+      processing: labels.stageProcessing || "Processing",
+      paused: labels.stagePaused || "Paused",
+      completed: labels.stageCompleted || "Completed",
+      failed: labels.stageFailed || "Failed",
+      cancelled: labels.stageCancelled || "Cancelled",
+      pending: labels.stagePending || "Pending",
+    };
+    return stageMap[stage] || stageMap.downloading;
   },
 
   getTaskActions(task, status) {

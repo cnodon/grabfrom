@@ -49,7 +49,7 @@
           <div class="flex flex-col gap-8">
             <div class="flex items-center gap-3">
               <img
-                src="../assets/app_icon.png"
+                src="../../assets/app_icon.png"
                 alt="Squirrel"
                 class="size-10 rounded-xl shadow-lg shadow-primary/20"
               />
@@ -470,7 +470,7 @@
                     ></div>
                   </div>
                   <div
-                    class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-lg border border-primary/10 flex items-center justify-between"
+                    class="bg-white dark:bg-background-dark p-6 rounded-xl shadow-lg border border-primary/10"
                   >
                     <div>
                       <p
@@ -488,21 +488,13 @@
                         <span class="material-symbols-outlined text-[10px]"
                           >hard_drive</span
                         >
-                        <span data-i18n="ui.details.freeSpaceHint"
-                          >Free space depends on your disk.</span
+                        <span
+                          id="details-disk-space"
+                          data-i18n="ui.details.diskSpace"
+                          >Disk Free: --</span
                         >
                       </p>
                     </div>
-                    <button
-                      id="download-all-btn"
-                      class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 shadow-lg shadow-primary/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                      disabled
-                    >
-                      <span class="material-symbols-outlined"
-                        >download_for_offline</span
-                      >
-                      <span data-i18n="ui.details.downloadAll">Download All</span>
-                    </button>
                   </div>
                 </div>
               </div>

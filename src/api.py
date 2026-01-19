@@ -342,6 +342,35 @@ class SquirrelAPI:
             return {'success': True, 'warning': Messages.FILE_NOT_FOUND_OPENED}
         return {'success': False, 'error': Messages.FILE_NOT_FOUND}
 
+    def get_disk_info(self) -> dict:
+        """
+        获取下载目录磁盘使用情况
+
+        Returns:
+            {'path': str, 'total_bytes': int, 'used_bytes': int, 'free_bytes': int}
+        """
+        target_path = self._config.download_path
+        try:
+            usage = shutil.disk_usage(target_path)
+            return {
+                'path': str(target_path),
+                'total_bytes': usage.total,
+                'used_bytes': usage.used,
+                'free_bytes': usage.free,
+            }
+        except Exception:
+            try:
+                fallback = Path.home()
+                usage = shutil.disk_usage(fallback)
+                return {
+                    'path': str(fallback),
+                    'total_bytes': usage.total,
+                    'used_bytes': usage.used,
+                    'free_bytes': usage.free,
+                }
+            except Exception:
+                return {}
+
     # ==================== 应用信息 ====================
 
     def get_app_info(self) -> dict:

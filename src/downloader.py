@@ -9,6 +9,7 @@ import threading
 import time
 import shutil
 import subprocess
+import json
 from pathlib import Path
 from typing import Optional, Callable, Dict
 from dataclasses import dataclass, field
@@ -72,6 +73,7 @@ class DownloadTask:
     audio_path: Optional[Path] = None
     output_path: Optional[Path] = None
     status: TaskStatus = TaskStatus.PENDING
+    stage: str = "pending"
     progress: DownloadProgress = field(default_factory=DownloadProgress)
     error_message: str = ""
     created_at: float = field(default_factory=time.time)
@@ -92,6 +94,7 @@ class DownloadTask:
             'audio_path': str(self.audio_path) if self.audio_path else None,
             'output_path': str(self.output_path) if self.output_path else None,
             'status': self.status.value,
+            'stage': self.stage,
             'progress': self.progress.to_dict(),
             'error_message': self.error_message,
             'created_at': self.created_at,
@@ -117,6 +120,20 @@ class DownloadManager:
         self._lock = threading.Lock()
         self._progress_callback: Optional[Callable] = None
 
+    def _register_task(self, task: DownloadTask) -> None:
+        """注册任务到管理器内部"""
+        with self._lock:
+            self._tasks[task.task_id] = task
+            pause_event = self._pause_events.get(task.task_id)
+            if not pause_event:
+                pause_event = threading.Event()
+                self._pause_events[task.task_id] = pause_event
+            if task.status == TaskStatus.PAUSED:
+                pause_event.clear()
+            else:
+                pause_event.set()
+            self._cancel_flags.setdefault(task.task_id, False)
+
     def set_progress_callback(self, callback: Callable):
         """设置进度回调函数"""
         self._progress_callback = callback
@@ -126,6 +143,172 @@ class DownloadManager:
         if self._progress_callback and task_id in self._tasks:
             task = self._tasks[task_id]
             self._progress_callback(task.to_dict())
+
+    def _resolve_output_path(self, task: DownloadTask, download_path: Path, filename: str) -> Path:
+        """恢复或生成输出路径"""
+        if task.output_path:
+            candidate = Path(task.output_path)
+            part_candidate = candidate.with_name(candidate.name + ".part")
+            if candidate.exists() or part_candidate.exists():
+                return candidate
+            if candidate.parent.exists():
+                return candidate
+        return get_unique_filepath(download_path, filename)
+
+    def _determine_stage_from_info(self, info_dict: dict) -> str:
+        """根据下载信息判断阶段"""
+        vcodec = info_dict.get('vcodec')
+        acodec = info_dict.get('acodec')
+        if vcodec == 'none' and acodec != 'none':
+            return 'downloading_audio'
+        if acodec == 'none' and vcodec != 'none':
+            return 'downloading_video'
+        return 'downloading'
+
+    def _needs_merge(self, task: DownloadTask, ffmpeg_available: bool) -> bool:
+        if not ffmpeg_available:
+            return False
+        return task.include_audio and task.has_video and not task.has_audio
+
+    def _needs_extract(self, task: DownloadTask) -> bool:
+        return task.output_format in ['mp3', 'm4a', 'flac']
+
+    def _calculate_overall_percent(
+        self,
+        task: DownloadTask,
+        downloaded_bytes: int,
+        total_bytes: int,
+        stage: str,
+        ffmpeg_available: bool,
+    ) -> float:
+        if total_bytes <= 0:
+            return task.progress.percent
+
+        download_percent = min(max(downloaded_bytes / total_bytes * 100, 0), 100)
+        needs_merge = self._needs_merge(task, ffmpeg_available)
+        needs_extract = self._needs_extract(task)
+
+        if needs_extract:
+            if stage.startswith('downloading'):
+                return min(download_percent * 0.9, 90.0)
+            if stage in ('extracting_audio', 'processing'):
+                return 95.0
+            return download_percent
+
+        if needs_merge:
+            if stage == 'downloading_video':
+                return min(download_percent * 0.45, 45.0)
+            if stage == 'downloading_audio':
+                return 45.0 + min(download_percent * 0.45, 45.0)
+            if stage == 'merging':
+                return 95.0
+            return min(download_percent, 95.0)
+
+        return download_percent
+
+    def _serialize_task(self, task: DownloadTask) -> dict:
+        """序列化任务用于持久化"""
+        data = task.to_dict()
+        if task.status in (TaskStatus.DOWNLOADING, TaskStatus.PENDING):
+            data['status'] = TaskStatus.PAUSED.value
+            data['stage'] = 'paused'
+        return data
+
+    def _restore_task(self, data: dict) -> Optional[DownloadTask]:
+        """从持久化数据恢复任务"""
+        if not isinstance(data, dict):
+            return None
+
+        status_value = data.get('status', TaskStatus.PENDING.value)
+        try:
+            status = TaskStatus(status_value)
+        except ValueError:
+            status = TaskStatus.PAUSED
+
+        if status in (TaskStatus.DOWNLOADING, TaskStatus.PENDING):
+            status = TaskStatus.PAUSED
+
+        progress_data = data.get('progress', {}) or {}
+        progress = DownloadProgress(
+            downloaded_bytes=int(progress_data.get('downloaded_bytes', 0) or 0),
+            total_bytes=int(progress_data.get('total_bytes', 0) or 0),
+            speed=float(progress_data.get('speed', 0) or 0),
+            eta=progress_data.get('eta'),
+            percent=float(progress_data.get('percent', 0) or 0),
+            filename=progress_data.get('filename', '') or '',
+        )
+
+        created_at_value = data.get('created_at')
+        try:
+            created_at = (
+                float(created_at_value)
+                if created_at_value is not None
+                else time.time()
+            )
+        except (TypeError, ValueError):
+            created_at = time.time()
+
+        task_id_value = data.get('task_id')
+        task_id = str(task_id_value) if task_id_value else str(uuid.uuid4())[:8]
+
+        task = DownloadTask(
+            task_id=task_id,
+            url=data.get('url', ''),
+            title=data.get('title', ''),
+            thumbnail=data.get('thumbnail', ''),
+            format_id=data.get('format_id', 'best'),
+            output_format=data.get('output_format', 'mp4'),
+            include_audio=bool(data.get('include_audio', True)),
+            has_audio=bool(data.get('has_audio', True)),
+            has_video=bool(data.get('has_video', True)),
+            format_ext=data.get('format_ext', ''),
+            audio_path=Path(data['audio_path']) if data.get('audio_path') else None,
+            output_path=Path(data['output_path']) if data.get('output_path') else None,
+            status=status,
+            stage=data.get('stage', status.value),
+            progress=progress,
+            error_message=data.get('error_message', ''),
+            created_at=created_at,
+            completed_at=data.get('completed_at'),
+        )
+
+        return task
+
+    def save_state(self) -> None:
+        """保存任务状态到磁盘"""
+        config = get_config()
+        state_path = config.tasks_path
+        with self._lock:
+            payload = [self._serialize_task(task) for task in self._tasks.values()]
+        try:
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+            with open(state_path, 'w', encoding='utf-8') as f:
+                json.dump(payload, f, indent=2, ensure_ascii=False)
+        except OSError:
+            pass
+
+    def load_state(self) -> None:
+        """从磁盘恢复任务状态"""
+        config = get_config()
+        state_path = config.tasks_path
+        if not state_path.exists():
+            return
+        try:
+            with open(state_path, 'r', encoding='utf-8') as f:
+                payload = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            return
+
+        if not isinstance(payload, list):
+            return
+
+        for item in payload:
+            task = self._restore_task(item)
+            if not task:
+                continue
+            if not task.url:
+                continue
+            self._register_task(task)
 
     def create_task(
         self,
@@ -165,13 +348,10 @@ class DownloadManager:
             has_audio=has_audio,
             has_video=has_video,
             format_ext=format_ext,
+            stage=TaskStatus.PENDING.value,
         )
 
-        with self._lock:
-            self._tasks[task_id] = task
-            self._pause_events[task_id] = threading.Event()
-            self._pause_events[task_id].set()  # 初始状态为非暂停
-            self._cancel_flags[task_id] = False
+        self._register_task(task)
 
         # 启动下载线程
         thread = threading.Thread(
@@ -201,6 +381,7 @@ class DownloadManager:
                 return
 
             task.status = TaskStatus.DOWNLOADING
+            task.stage = TaskStatus.DOWNLOADING.value
             self._notify_progress(task_id)
 
             config = get_config()
@@ -209,8 +390,7 @@ class DownloadManager:
             # 构建安全的文件名
             safe_title = sanitize_filename(task.title)
             filename = f"{safe_title}.{task.output_format}"
-            output_file = get_unique_filepath(download_path, filename)
-
+            output_file = self._resolve_output_path(task, download_path, filename)
             task.output_path = output_file
 
             # 没有 ffmpeg 时，避免输出扩展名与实际格式不一致
@@ -243,6 +423,7 @@ class DownloadManager:
                         output_file.unlink()
                 else:
                     task.status = TaskStatus.COMPLETED
+                    task.stage = TaskStatus.COMPLETED.value
                     task.completed_at = time.time()
                     task.progress.percent = 100.0
                     self._extract_audio(task)
@@ -250,9 +431,11 @@ class DownloadManager:
 
             except yt_dlp.utils.DownloadError as e:
                 task.status = TaskStatus.FAILED
+                task.stage = TaskStatus.FAILED.value
                 task.error_message = str(e)
             except Exception as e:
                 task.status = TaskStatus.FAILED
+                task.stage = TaskStatus.FAILED.value
                 task.error_message = Messages.DOWNLOAD_FAILED.format(error=str(e))
 
             self._notify_progress(task_id)
@@ -326,6 +509,9 @@ class DownloadManager:
         ]
 
         try:
+            task.stage = 'extracting_audio'
+            task.progress.percent = max(task.progress.percent, 95.0)
+            self._notify_progress(task.task_id)
             subprocess.run(
                 command,
                 check=True,
@@ -333,6 +519,9 @@ class DownloadManager:
                 stderr=subprocess.DEVNULL,
             )
             task.audio_path = audio_path
+            task.stage = TaskStatus.COMPLETED.value
+            task.progress.percent = 100.0
+            self._notify_progress(task.task_id)
         except (subprocess.SubprocessError, FileNotFoundError):
             pass
 
@@ -359,15 +548,25 @@ class DownloadManager:
                 if task.progress.filename:
                     task.output_path = Path(task.progress.filename)
 
-                if task.progress.total_bytes > 0:
-                    task.progress.percent = (
-                        task.progress.downloaded_bytes / task.progress.total_bytes * 100
-                    )
+                info_dict = d.get('info_dict') or {}
+                stage = self._determine_stage_from_info(info_dict)
+                task.stage = stage
+                task.progress.percent = self._calculate_overall_percent(
+                    task,
+                    task.progress.downloaded_bytes,
+                    task.progress.total_bytes,
+                    stage,
+                    ffmpeg_available,
+                )
 
                 self._notify_progress(task_id)
 
             elif d['status'] == 'finished':
-                task.progress.percent = 100.0
+                if self._needs_merge(task, ffmpeg_available) or self._needs_extract(task):
+                    task.stage = 'processing'
+                    task.progress.percent = max(task.progress.percent, 95.0)
+                else:
+                    task.progress.percent = 100.0
                 if d.get('filename'):
                     task.output_path = Path(d.get('filename'))
                 self._notify_progress(task_id)
@@ -376,14 +575,39 @@ class DownloadManager:
         opts = {
             'outtmpl': str(output_file.with_suffix('.%(ext)s')),
             'progress_hooks': [progress_hook],
+            'postprocessor_hooks': [],
             'quiet': True,
             'no_warnings': True,
             'retries': 5,
             'fragment_retries': 5,
             'socket_timeout': 20,
+            'continuedl': True,
         }
 
         ffmpeg_available = shutil.which('ffmpeg') is not None
+
+        def postprocessor_hook(d):
+            status = d.get('status')
+            if status not in ['started', 'processing', 'finished']:
+                return
+
+            pp_name = d.get('postprocessor', '') or ''
+            if 'ExtractAudio' in pp_name or 'AudioExtract' in pp_name:
+                task.stage = 'extracting_audio'
+            elif 'Merger' in pp_name or 'VideoConvertor' in pp_name:
+                task.stage = 'merging'
+            else:
+                task.stage = 'processing'
+
+            if status in ['started', 'processing']:
+                task.progress.percent = max(task.progress.percent, 95.0)
+            elif status == 'finished':
+                task.progress.percent = 100.0
+                if task.status != TaskStatus.CANCELLED:
+                    task.stage = TaskStatus.COMPLETED.value
+            self._notify_progress(task_id)
+
+        opts['postprocessor_hooks'] = [postprocessor_hook]
 
         # 根据输出格式设置
         if task.output_format in ['mp3', 'm4a', 'flac']:
@@ -439,6 +663,7 @@ class DownloadManager:
         if pause_event:
             pause_event.clear()
             task.status = TaskStatus.PAUSED
+            task.stage = TaskStatus.PAUSED.value
             self._notify_progress(task_id)
             return True
 
@@ -455,13 +680,27 @@ class DownloadManager:
 
         # 设置暂停事件，让下载线程继续
         pause_event = self._pause_events.get(task_id)
-        if pause_event:
-            pause_event.set()
-            task.status = TaskStatus.DOWNLOADING
-            self._notify_progress(task_id)
-            return True
+        if not pause_event:
+            pause_event = threading.Event()
+            self._pause_events[task_id] = pause_event
+        pause_event.set()
+        task.status = TaskStatus.DOWNLOADING
+        task.stage = TaskStatus.DOWNLOADING.value
+        task.error_message = ""
+        self._cancel_flags[task_id] = False
+        self._notify_progress(task_id)
 
-        return False
+        thread = self._threads.get(task_id)
+        if not thread or not thread.is_alive():
+            thread = threading.Thread(
+                target=self._download_worker,
+                args=(task_id,),
+                daemon=True
+            )
+            self._threads[task_id] = thread
+            thread.start()
+
+        return True
 
     def cancel_task(self, task_id: str) -> bool:
         """取消任务"""
@@ -481,6 +720,7 @@ class DownloadManager:
             pause_event.set()
 
         task.status = TaskStatus.CANCELLED
+        task.stage = TaskStatus.CANCELLED.value
         self._notify_progress(task_id)
         return True
 
@@ -536,4 +776,5 @@ def get_download_manager() -> DownloadManager:
         config = get_config()
         max_concurrent = config.get('max_concurrent_downloads', 3)
         _manager_instance = DownloadManager(max_concurrent=max_concurrent)
+        _manager_instance.load_state()
     return _manager_instance

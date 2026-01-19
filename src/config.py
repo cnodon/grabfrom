@@ -88,6 +88,11 @@ class Config:
         path.mkdir(parents=True, exist_ok=True)
         return path
 
+    @property
+    def tasks_path(self) -> Path:
+        """获取任务状态保存路径"""
+        return self.config_path.parent / 'tasks.json'
+
 
 # 全局配置实例
 _config_instance: Optional[Config] = None

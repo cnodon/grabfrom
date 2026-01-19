@@ -164,6 +164,12 @@ const API = {
         return await this._api.open_file_location(filepath);
     },
 
+    // 获取磁盘信息
+    async getDiskInfo() {
+        if (!this._api) await this.init();
+        return await this._api.get_disk_info();
+    },
+
     // ==================== 应用信息 ====================
 
     // 获取应用信息

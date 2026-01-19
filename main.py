@@ -10,6 +10,7 @@ from pathlib import Path
 
 from src.api import SquirrelAPI
 from src.config import get_config
+from src.downloader import get_download_manager
 
 
 def get_ui_path() -> Path:
@@ -71,6 +72,12 @@ def main():
 
     # 保存窗口引用到 API，用于推送进度更新
     api.set_window(window)
+
+    def handle_closing():
+        manager = get_download_manager()
+        manager.save_state()
+
+    window.events.closing += handle_closing
 
     # 启动应用
     webview.start(debug=False)
