@@ -8,6 +8,7 @@ import uuid
 import threading
 import time
 import shutil
+import subprocess
 from pathlib import Path
 from typing import Optional, Callable, Dict
 from dataclasses import dataclass, field
@@ -16,6 +17,7 @@ from enum import Enum
 import yt_dlp
 
 from src.config import get_config
+from src.strings import Messages
 from src.utils import sanitize_filename, get_unique_filepath, format_size, format_speed, format_eta
 
 
@@ -67,6 +69,7 @@ class DownloadTask:
     has_audio: bool = True
     has_video: bool = True
     format_ext: str = ""
+    audio_path: Optional[Path] = None
     output_path: Optional[Path] = None
     status: TaskStatus = TaskStatus.PENDING
     progress: DownloadProgress = field(default_factory=DownloadProgress)
@@ -86,6 +89,7 @@ class DownloadTask:
             'has_audio': self.has_audio,
             'has_video': self.has_video,
             'format_ext': self.format_ext,
+            'audio_path': str(self.audio_path) if self.audio_path else None,
             'output_path': str(self.output_path) if self.output_path else None,
             'status': self.status.value,
             'progress': self.progress.to_dict(),
@@ -241,6 +245,7 @@ class DownloadManager:
                     task.status = TaskStatus.COMPLETED
                     task.completed_at = time.time()
                     task.progress.percent = 100.0
+                    self._extract_audio(task)
                     self._cleanup_temp_files(task)
 
             except yt_dlp.utils.DownloadError as e:
@@ -248,7 +253,7 @@ class DownloadManager:
                 task.error_message = str(e)
             except Exception as e:
                 task.status = TaskStatus.FAILED
-                task.error_message = f"下载失败: {str(e)}"
+                task.error_message = Messages.DOWNLOAD_FAILED.format(error=str(e))
 
             self._notify_progress(task_id)
 
@@ -281,6 +286,56 @@ class DownloadManager:
                 except OSError:
                     pass
 
+    def _extract_audio(self, task: DownloadTask) -> None:
+        """为视频额外保存音频文件"""
+        config = get_config()
+        if not config.get('save_audio_on_complete', True):
+            return
+
+        if not task.output_path or not task.output_path.exists():
+            return
+
+        if not task.has_video:
+            return
+
+        ffmpeg_path = shutil.which('ffmpeg')
+        if not ffmpeg_path:
+            return
+
+        output_format = config.get('audio_extract_format', 'm4a')
+        if output_format not in ['m4a', 'mp3', 'flac']:
+            output_format = 'm4a'
+
+        base = task.output_path.with_suffix('')
+        audio_path = task.output_path.with_name(f"{base.name}.audio.{output_format}")
+
+        codec_args = {
+            'm4a': ['-acodec', 'aac', '-b:a', '192k'],
+            'mp3': ['-acodec', 'libmp3lame', '-b:a', '192k'],
+            'flac': ['-acodec', 'flac'],
+        }[output_format]
+
+        command = [
+            ffmpeg_path,
+            '-y',
+            '-i',
+            str(task.output_path),
+            '-vn',
+            *codec_args,
+            str(audio_path),
+        ]
+
+        try:
+            subprocess.run(
+                command,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+            )
+            task.audio_path = audio_path
+        except (subprocess.SubprocessError, FileNotFoundError):
+            pass
+
     def _build_ydl_opts(self, task_id: str, task: DownloadTask, output_file: Path) -> dict:
         """构建 yt-dlp 选项"""
 
@@ -293,7 +348,7 @@ class DownloadManager:
 
             # 检查取消
             if self._cancel_flags.get(task_id, False):
-                raise yt_dlp.utils.DownloadError("用户取消下载")
+                raise yt_dlp.utils.DownloadError(Messages.DOWNLOAD_CANCELLED)
 
             if d['status'] == 'downloading':
                 task.progress.downloaded_bytes = d.get('downloaded_bytes', 0)
@@ -333,7 +388,7 @@ class DownloadManager:
         # 根据输出格式设置
         if task.output_format in ['mp3', 'm4a', 'flac']:
             if not ffmpeg_available:
-                raise Exception("需要安装 ffmpeg 才能提取音频")
+                raise Exception(Messages.FFMPEG_AUDIO_REQUIRED)
 
             opts['format'] = 'bestaudio/best'
             opts['postprocessors'] = [{
@@ -349,7 +404,7 @@ class DownloadManager:
                 opts['format'] = task.format_id or 'best'
             else:
                 if not ffmpeg_available:
-                    raise Exception("需要安装 ffmpeg 才能合并音视频")
+                    raise Exception(Messages.FFMPEG_MERGE_REQUIRED)
                 if task.format_id and task.format_id != 'best':
                     opts['format'] = f"{task.format_id}+bestaudio/best"
                 else:

@@ -1,5 +1,7 @@
 /* app.js - SPA logic for Squirrel */
 
+let STRINGS = window.STRINGS || {};
+
 const App = {
   state: {
     currentUrl: "",
@@ -17,6 +19,7 @@ const App = {
   elements: {},
 
   init() {
+    this.injectSidebars();
     this.cacheElements();
     this.bindEvents();
     window.onDownloadProgress = (task) => this.onDownloadProgress(task);
@@ -30,8 +33,8 @@ const App = {
       homeUrlInput: get("home-url-input"),
       homeDownloadBtn: get("home-download-btn"),
       homeError: get("home-error"),
-      homeDownloadCount: get("home-download-count"),
-      appVersion: get("app-version"),
+      homeDownloadCounts: document.querySelectorAll(".home-download-count"),
+      appVersionNodes: document.querySelectorAll(".app-version"),
       detailsRefresh: get("details-refresh"),
       detailsCopyUrl: get("details-copy-url"),
       detailsThumbnail: get("details-thumbnail"),
@@ -50,7 +53,7 @@ const App = {
       tasksList: get("tasks-list"),
       tasksSearch: get("tasks-search"),
       statActive: get("stat-active"),
-      statFinished: get("stat-finished"),
+      statPaused: get("stat-paused"),
       dashboardPasteUrl: get("dashboard-paste-url"),
       dashboardSavePath: get("dashboard-save-path"),
       dashboardChangePath: get("dashboard-change-path"),
@@ -69,7 +72,65 @@ const App = {
       aboutVersion: get("about-version"),
       toastContainer: get("toast-container"),
       launchAnalysis: get("launch-analysis"),
+      settingsLanguage: get("settings-language"),
     };
+  },
+
+  injectSidebars() {
+    const template = document.getElementById("sidebar-template");
+    if (!template) return;
+    document.querySelectorAll("[data-sidebar]").forEach((slot) => {
+      const clone = template.content.firstElementChild.cloneNode(true);
+      slot.replaceWith(clone);
+    });
+  },
+
+  setLanguage(language) {
+    const fallback = (window.I18N && window.I18N["zh-Hans"]) || {};
+    const next = (window.I18N && window.I18N[language]) || fallback;
+    window.STRINGS = next;
+    STRINGS = next;
+    this.applyI18n();
+    this.updateVersionLabels();
+    if (this.state.videoInfo) {
+      this.populateDetails(this.state.videoInfo);
+    }
+  },
+
+  getString(path) {
+    if (!path) return "";
+    return path.split(".").reduce((acc, key) => acc?.[key], STRINGS);
+  },
+
+  formatString(template, values = {}) {
+    if (!template) return "";
+    return Object.keys(values).reduce(
+      (text, key) => text.replaceAll(`{${key}}`, values[key]),
+      template
+    );
+  },
+
+  applyI18n() {
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+      const value = this.getString(el.dataset.i18n);
+      if (value !== undefined && value !== null) {
+        el.textContent = value;
+      }
+    });
+
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+      const value = this.getString(el.dataset.i18nPlaceholder);
+      if (value !== undefined && value !== null) {
+        el.setAttribute("placeholder", value);
+      }
+    });
+
+    document.querySelectorAll("[data-i18n-title]").forEach((el) => {
+      const value = this.getString(el.dataset.i18nTitle);
+      if (value !== undefined && value !== null) {
+        el.setAttribute("title", value);
+      }
+    });
   },
 
   bindEvents() {
@@ -102,7 +163,10 @@ const App = {
     this.elements.detailsCopyUrl.addEventListener("click", () => {
       if (this.state.currentUrl) {
         navigator.clipboard.writeText(this.state.currentUrl).catch(() => null);
-        this.showToast("Link copied", "Copy completed");
+        this.showToast(
+          STRINGS.info?.linkCopiedTitle || "Link copied",
+          STRINGS.info?.linkCopiedBody || "Copy completed"
+        );
       }
     });
 
@@ -125,8 +189,9 @@ const App = {
         this.state.appInfo.ffmpeg_available === false
       ) {
         this.showToast(
-          "FFmpeg required",
-          "Audio extraction needs ffmpeg. Install it to continue.",
+          STRINGS.errors?.ffmpegRequiredTitle || "FFmpeg required",
+          STRINGS.errors?.ffmpegRequiredBody ||
+            "Audio extraction needs ffmpeg. Install it to continue.",
           true
         );
       }
@@ -198,9 +263,11 @@ const App = {
       });
     }
 
-    this.elements.dashboardChangePath.addEventListener("click", () =>
-      this.pickDownloadPath()
-    );
+    if (this.elements.dashboardChangePath) {
+      this.elements.dashboardChangePath.addEventListener("click", () =>
+        this.pickDownloadPath()
+      );
+    }
     this.elements.settingsChangePath.addEventListener("click", () =>
       this.pickDownloadPath()
     );
@@ -226,6 +293,11 @@ const App = {
     this.elements.settingsAudioFormat.addEventListener("change", () =>
       this.saveSettings()
     );
+    if (this.elements.settingsLanguage) {
+      this.elements.settingsLanguage.addEventListener("change", () =>
+        this.saveSettings()
+      );
+    }
     this.elements.toggleStartup.addEventListener("change", () =>
       this.saveSettings()
     );
@@ -254,20 +326,41 @@ const App = {
   async loadAppInfo() {
     const info = await API.getAppInfo();
     this.state.appInfo = info || {};
-    if (info?.version) {
-      this.elements.appVersion.textContent = `v${info.version}`;
-      this.elements.settingsVersion.textContent = `Up to date (v${info.version})`;
-      this.elements.aboutVersion.textContent = `Version ${info.version}`;
-    }
+    this.updateVersionLabels();
     if (info?.download_path) {
       this.updateDownloadPath(info.download_path);
     }
     if (info && info.ffmpeg_available === false) {
       this.showToast(
-        "FFmpeg missing",
-        "Install ffmpeg to merge audio/video or extract audio.",
+        STRINGS.errors?.ffmpegMissingTitle || "FFmpeg missing",
+        STRINGS.errors?.ffmpegMissingBody ||
+          "Install ffmpeg to merge audio/video or extract audio.",
         true
       );
+    }
+  },
+
+  updateVersionLabels() {
+    const version = this.state.appInfo?.version;
+    if (!version) return;
+    if (this.elements.appVersionNodes) {
+      this.elements.appVersionNodes.forEach((node) => {
+        node.textContent = `v${version}`;
+      });
+    }
+    if (this.elements.settingsVersion) {
+      const template =
+        STRINGS.ui?.settings?.statusUpToDate || "Up to date (v{version})";
+      this.elements.settingsVersion.textContent = this.formatString(template, {
+        version,
+      });
+    }
+    if (this.elements.aboutVersion) {
+      const template =
+        STRINGS.ui?.settings?.aboutVersion || "Version {version}";
+      this.elements.aboutVersion.textContent = this.formatString(template, {
+        version,
+      });
     }
   },
 
@@ -289,11 +382,15 @@ const App = {
     if (settings.default_audio_format) {
       this.elements.settingsAudioFormat.value = settings.default_audio_format;
     }
+    if (this.elements.settingsLanguage && settings.language) {
+      this.elements.settingsLanguage.value = settings.language;
+    }
     this.elements.toggleStartup.checked = !!settings.launch_at_startup;
     this.elements.toggleNotifications.checked =
       settings.desktop_notifications !== false;
     this.elements.toggleDarkMode.checked = !!settings.dark_mode;
     this.applyDarkMode(!!settings.dark_mode);
+    this.setLanguage(settings.language || "zh-Hans");
   },
 
   async saveSettings() {
@@ -301,6 +398,9 @@ const App = {
       download_path: this.elements.settingsDownloadPath.value,
       default_video_quality: this.elements.settingsVideoQuality.value,
       default_audio_format: this.elements.settingsAudioFormat.value,
+      language: this.elements.settingsLanguage
+        ? this.elements.settingsLanguage.value
+        : "zh-Hans",
       launch_at_startup: this.elements.toggleStartup.checked,
       desktop_notifications: this.elements.toggleNotifications.checked,
       dark_mode: this.elements.toggleDarkMode.checked,
@@ -308,6 +408,7 @@ const App = {
     await API.saveSettings(payload);
     this.state.settings = { ...this.state.settings, ...payload };
     this.applyDarkMode(!!payload.dark_mode);
+    this.setLanguage(payload.language);
   },
 
   applyDarkMode(enabled) {
@@ -325,7 +426,9 @@ const App = {
 
   updateDownloadPath(path) {
     this.elements.settingsDownloadPath.value = path;
-    this.elements.dashboardSavePath.textContent = path;
+    if (this.elements.dashboardSavePath) {
+      this.elements.dashboardSavePath.textContent = path;
+    }
   },
 
   async loadTasks() {
@@ -340,13 +443,17 @@ const App = {
     const count = Array.from(this.state.tasks.values()).filter(
       (task) => task.status !== "completed"
     ).length;
-    this.elements.homeDownloadCount.textContent = count;
+    if (this.elements.homeDownloadCounts) {
+      this.elements.homeDownloadCounts.forEach((node) => {
+        node.textContent = count;
+      });
+    }
   },
 
   async handleParseUrl() {
     const url = this.elements.homeUrlInput.value.trim();
     if (!url) {
-      this.showHomeError("Please enter a URL.");
+      this.showHomeError(STRINGS.errors?.emptyUrl || "Please enter a URL.");
       return;
     }
     this.showHomeError("");
@@ -400,12 +507,16 @@ const App = {
     if (!info) return;
     this.elements.detailsTitle.textContent = info.title || "--";
     this.elements.detailsDuration.textContent = info.duration_str || "0:00";
-    this.elements.detailsSource.textContent = `Source: ${
+    const sourcePrefix =
+      STRINGS.ui?.details?.sourcePrefix || "Source:";
+    this.elements.detailsSource.textContent = `${sourcePrefix} ${
       info.platform || "--"
     }`;
     this.elements.detailsChannel.textContent = info.channel || "--";
+    const uploadedPrefix =
+      STRINGS.ui?.details?.uploadedPrefix || "Uploaded";
     this.elements.detailsMeta.textContent = info.upload_date
-      ? `Uploaded ${info.upload_date}`
+      ? `${uploadedPrefix} ${info.upload_date}`
       : "--";
     this.elements.detailsViews.textContent = this.formatNumber(
       info.view_count || 0
@@ -421,7 +532,11 @@ const App = {
   renderStreams() {
     const formats = this.getVisibleFormats();
     if (!formats.length) {
-      this.elements.streamsList.innerHTML = `<div class="px-6 py-8 text-center text-sm text-gray-500">No streams available for this mode.</div>`;
+      const emptyText =
+        STRINGS.labels?.noStreams || "No streams available for this mode.";
+      this.elements.streamsList.innerHTML = `<div class="px-6 py-8 text-center text-sm text-gray-500">${this.escapeHtml(
+        emptyText
+      )}</div>`;
       this.updateSelectionSummary();
       return;
     }
@@ -556,9 +671,12 @@ const App = {
       (sum, format) => sum + (format.filesize || 0),
       0
     );
-    this.elements.selectionSummary.textContent = `${selectedFormats.length} Stream - ${this.formatBytes(
-      totalSize
-    )}`;
+    const template =
+      STRINGS.ui?.details?.selectionSummary || "{count} Stream - {size}";
+    this.elements.selectionSummary.textContent = this.formatString(template, {
+      count: selectedFormats.length,
+      size: this.formatBytes(totalSize),
+    });
     this.elements.downloadAllBtn.disabled = selectedFormats.length === 0;
   },
 
@@ -591,7 +709,11 @@ const App = {
     );
 
     if (response?.error) {
-      this.showToast("Download failed", response.error, true);
+      this.showToast(
+        STRINGS.errors?.downloadFailed || "Download failed",
+        response.error,
+        true
+      );
       return;
     }
 
@@ -601,7 +723,10 @@ const App = {
         this.state.tasks.set(task.task_id, task);
         this.renderTasks();
         this.syncDownloadCount();
-        this.showToast("Download started", info.title);
+        this.showToast(
+          STRINGS.info?.downloadStartedTitle || "Download started",
+          info.title
+        );
         if (navigate) Router.navigate("downloads");
       }
     }
@@ -623,15 +748,21 @@ const App = {
     this.renderTasks();
     this.syncDownloadCount();
     if (task.status === "completed") {
-      this.showToast("Download completed", task.title);
+      this.showToast(
+        STRINGS.info?.downloadCompletedTitle || "Download completed",
+        task.title
+      );
     }
   },
 
   renderTasks() {
     const tasks = this.getFilteredTasks();
     if (!tasks.length) {
-      this.elements.tasksList.innerHTML =
-        '<div class="bg-white dark:bg-[#25282c] p-6 rounded-xl border border-gray-100 dark:border-gray-700/50 text-center text-sm text-gray-500">No tasks available.</div>';
+      const emptyTasks =
+        STRINGS.labels?.noTasks || "No tasks available.";
+      this.elements.tasksList.innerHTML = `<div class="bg-white dark:bg-[#25282c] p-6 rounded-xl border border-gray-100 dark:border-gray-700/50 text-center text-sm text-gray-500">${this.escapeHtml(
+        emptyTasks
+      )}</div>`;
     } else {
       this.elements.tasksList.innerHTML = tasks
         .map((task) => this.renderTaskRow(task))
@@ -738,21 +869,33 @@ const App = {
 
   getStatusBadge(status) {
     if (status === "downloading") {
-      return `<span class="shrink-0 px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">Downloading</span>`;
+      return `<span class="shrink-0 px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
+        STRINGS.labels?.statusDownloading || "Downloading"
+      )}</span>`;
     }
     if (status === "paused") {
-      return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">Paused</span>`;
+      return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
+        STRINGS.labels?.statusPaused || "Paused"
+      )}</span>`;
     }
     if (status === "completed") {
-      return `<span class="shrink-0 px-2 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase tracking-tight">Completed</span>`;
+      return `<span class="shrink-0 px-2 py-0.5 rounded bg-green-500/10 text-green-600 dark:text-green-400 text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
+        STRINGS.labels?.statusCompleted || "Completed"
+      )}</span>`;
     }
     if (status === "failed") {
-      return `<span class="shrink-0 px-2 py-0.5 rounded bg-red-500/10 text-red-600 text-[10px] font-bold uppercase tracking-tight">Failed</span>`;
+      return `<span class="shrink-0 px-2 py-0.5 rounded bg-red-500/10 text-red-600 text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
+        STRINGS.labels?.statusFailed || "Failed"
+      )}</span>`;
     }
     if (status === "cancelled") {
-      return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">Cancelled</span>`;
+      return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
+        STRINGS.labels?.statusCancelled || "Cancelled"
+      )}</span>`;
     }
-    return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">Pending</span>`;
+    return `<span class="shrink-0 px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 text-[10px] font-bold uppercase tracking-tight">${this.escapeHtml(
+      STRINGS.labels?.statusPending || "Pending"
+    )}</span>`;
   },
 
   getTaskActions(task, status) {
@@ -801,19 +944,32 @@ const App = {
     const activeCount = allTasks.filter((task) =>
       ["downloading", "pending"].includes(task.status)
     ).length;
-    const finishedCount = allTasks.filter(
-      (task) => task.status === "completed"
+    const pausedCount = allTasks.filter(
+      (task) => task.status === "paused"
     ).length;
-    this.elements.statActive.textContent = `${activeCount} Active`;
-    this.elements.statFinished.textContent = `${finishedCount} Finished`;
+    const strings = STRINGS.ui?.dashboard || {};
+    const activeText = (strings.activeCount || "{count} Active").replace(
+      "{count}",
+      activeCount
+    );
+    const pausedText = (strings.pausedCount || "{count} Pause").replace(
+      "{count}",
+      pausedCount
+    );
+    this.elements.statActive.textContent = activeText;
+    if (this.elements.statPaused) {
+      this.elements.statPaused.textContent = pausedText;
+    }
 
     const totalSpeed = allTasks.reduce(
       (sum, task) => sum + (task.progress?.speed || 0),
       0
     );
     this.elements.totalSpeed.textContent = this.formatBytes(totalSpeed) + "/s";
-    const speedRatio = Math.min(totalSpeed / (10 * 1024 * 1024), 1);
-    this.elements.speedBar.style.width = `${Math.max(speedRatio * 100, 10)}%`;
+    if (this.elements.speedBar) {
+      const speedRatio = Math.min(totalSpeed / (10 * 1024 * 1024), 1);
+      this.elements.speedBar.style.width = `${Math.max(speedRatio * 100, 10)}%`;
+    }
   },
 
   async handleTaskAction(taskId, action) {
@@ -831,12 +987,25 @@ const App = {
       if (task?.output_path) {
         const result = await API.openFileLocation(task.output_path);
         if (result?.warning) {
-          this.showToast("Opened folder", result.warning);
+          this.showToast(
+            STRINGS.info?.openedFolderTitle || "Opened folder",
+            result.warning
+          );
         } else if (result?.success === false) {
-          this.showToast("Open failed", result.error || "Unable to open", true);
+          this.showToast(
+            STRINGS.errors?.openFailed || "Open failed",
+            result.error ||
+              STRINGS.errors?.openFailedGeneric ||
+              "Unable to open",
+            true
+          );
         }
       } else {
-        this.showToast("Open failed", "File path missing", true);
+        this.showToast(
+          STRINGS.errors?.openFailed || "Open failed",
+          STRINGS.errors?.openFailedMissingPath || "File path missing",
+          true
+        );
       }
     }
     await this.loadTasks();

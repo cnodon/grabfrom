@@ -42,104 +42,99 @@
     class="bg-background-light dark:bg-background-dark font-display text-[#121617] dark:text-gray-100 antialiased"
   >
     <div id="app" class="h-screen w-full overflow-hidden">
-      <!-- Home / Launch -->
-      <div data-view="view-home" class="h-full">
-        <div class="flex h-full w-full overflow-hidden">
-          <aside
-            class="w-64 sidebar-blur border-r border-gray-200 dark:border-gray-800 flex flex-col justify-between p-6 z-10"
-          >
-            <div class="flex flex-col gap-8">
-              <div class="flex items-center gap-3">
-                <img
-                  src="../assets/app_icon.png"
-                  alt="Squirrel"
-                  class="size-10 rounded-xl shadow-lg shadow-primary/20"
-                />
-                <div class="flex flex-col">
-                  <h1
-                    class="text-[#121617] dark:text-white text-lg font-bold leading-tight"
-                  >
-                    Squirrel
-                  </h1>
-                  <p
-                    class="text-[#658086] dark:text-gray-400 text-xs font-medium"
-                    id="app-version"
-                  >
-                    v1.0.0
-                  </p>
-                </div>
+      <template id="sidebar-template">
+        <aside
+          class="w-64 sidebar-blur border-r border-gray-200 dark:border-gray-800 bg-white/80 dark:bg-background-dark/80 flex flex-col justify-between p-6 z-10"
+        >
+          <div class="flex flex-col gap-8">
+            <div class="flex items-center gap-3">
+              <img
+                src="../assets/app_icon.png"
+                alt="Squirrel"
+                class="size-10 rounded-xl shadow-lg shadow-primary/20"
+              />
+              <div class="flex flex-col">
+                <h1
+                  class="text-[#121617] dark:text-white text-lg font-bold leading-tight"
+                  data-i18n="ui.appName"
+                >
+                  Squirrel
+                </h1>
+                <p
+                  class="text-[#658086] dark:text-gray-400 text-xs font-medium app-version"
+                >
+                  v1.0.0
+                </p>
               </div>
-              <nav class="flex flex-col gap-1">
-                <a
-                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary font-semibold"
-                  href="#"
-                  data-route="home"
-                  data-nav="home"
-                >
-                  <span class="material-symbols-outlined">home</span>
-                  <span class="text-sm">Home</span>
-                </a>
-                <a
-                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
-                  href="#"
-                  data-route="downloads"
-                  data-nav="downloads"
-                >
-                  <span class="material-symbols-outlined">dashboard</span>
-                  <span class="text-sm">Dashboard</span>
-                  <span
-                    class="ml-auto bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full"
-                    id="home-download-count"
-                    >0</span
-                  >
-                </a>
-              </nav>
             </div>
-            <div class="flex flex-col gap-4">
+            <nav class="flex flex-col gap-1">
               <a
                 class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
                 href="#"
-                data-route="settings"
-                data-nav="settings"
+                data-route="home"
+                data-nav="home"
               >
-                <span class="material-symbols-outlined">settings</span>
-                <span class="text-sm font-semibold">Settings</span>
-              </a>
-              <div
-                class="bg-gray-50 dark:bg-white/5 p-4 rounded-xl border border-gray-100 dark:border-white/5"
-              >
-                <p class="text-xs text-[#658086] mb-2 font-medium">
-                  Storage Used
-                </p>
-                <div
-                  class="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"
+                <span class="material-symbols-outlined">home</span>
+                <span class="text-sm font-semibold" data-i18n="ui.nav.home"
+                  >Home</span
                 >
-                  <div class="h-full bg-primary w-1/3"></div>
-                </div>
-                <p class="text-[10px] text-gray-400 mt-2 text-right">
-                  0 GB / --
-                </p>
-              </div>
-            </div>
-          </aside>
+              </a>
+              <a
+                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+                href="#"
+                data-route="downloads"
+                data-nav="downloads"
+              >
+                <span class="material-symbols-outlined">dashboard</span>
+                <span
+                  class="text-sm font-semibold"
+                  data-i18n="ui.nav.dashboard"
+                  >Dashboard</span
+                >
+                <span
+                  class="ml-auto bg-primary text-white text-[10px] px-1.5 py-0.5 rounded-full home-download-count"
+                  >0</span
+                >
+              </a>
+            </nav>
+          </div>
+          <div class="flex flex-col gap-4">
+            <a
+              class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-gray-100 dark:hover:bg-white/5 transition-colors"
+              href="#"
+              data-route="settings"
+              data-nav="settings"
+            >
+              <span class="material-symbols-outlined">settings</span>
+              <span class="text-sm font-semibold" data-i18n="ui.nav.settings"
+                >Settings</span
+              >
+            </a>
+          </div>
+        </aside>
+      </template>
+      <!-- Home / Launch -->
+      <div data-view="view-home" class="h-full">
+        <div class="flex h-full w-full overflow-hidden">
+          <div data-sidebar></div>
           <main
             class="flex-1 relative flex flex-col items-center justify-center p-8"
           >
-            <div class="absolute top-6 left-8 flex gap-2">
-              <div class="size-3 rounded-full bg-red-400/80"></div>
-              <div class="size-3 rounded-full bg-yellow-400/80"></div>
-              <div class="size-3 rounded-full bg-green-400/80"></div>
-            </div>
             <div class="w-full max-w-2xl flex flex-col items-center text-center">
               <div class="mb-8">
                 <h2
                   class="text-[#121617] dark:text-white text-4xl font-extrabold tracking-tight mb-3"
                 >
-                  Grab anything from
-                  <span class="text-primary italic">anywhere</span>.
+                  <span data-i18n="ui.home.heroPrefix">Grab anything from</span>
+                  <span
+                    class="text-primary italic"
+                    data-i18n="ui.home.heroEmphasis"
+                    >anywhere</span
+                  ><span data-i18n="ui.home.heroSuffix">.</span>
                 </h2>
                 <p
                   class="text-[#658086] dark:text-gray-400 text-lg font-medium"
+                  data-i18n="ui.home.subtitle"
                 >
                   Paste a URL to start your high-quality download.
                 </p>
@@ -153,6 +148,7 @@
                 <input
                   id="home-url-input"
                   class="flex-1 bg-transparent border-none focus:ring-0 text-[#121617] dark:text-white placeholder:text-gray-400 text-base py-4"
+                  data-i18n-placeholder="ui.home.inputPlaceholder"
                   placeholder="Paste YouTube or X link here..."
                   type="text"
                 />
@@ -161,7 +157,7 @@
                   class="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-xl font-bold flex items-center gap-2 transition-all active:scale-95"
                 >
                   <span class="material-symbols-outlined">rocket_launch</span>
-                  Launch
+                  <span data-i18n="ui.home.launchButton">Launch</span>
                 </button>
               </div>
               <div id="launch-analysis" class="hidden w-full max-w-2xl mb-4">
@@ -171,7 +167,10 @@
                   <div class="launch-scan-track">
                     <div class="launch-scan-bar"></div>
                   </div>
-                  <p class="text-xs text-gray-500 font-semibold">
+                  <p
+                    class="text-xs text-gray-500 font-semibold"
+                    data-i18n="ui.home.analyzing"
+                  >
                     Analyzing network stream...
                   </p>
                 </div>
@@ -183,6 +182,7 @@
               <div class="flex flex-col items-center gap-6 mt-8">
                 <p
                   class="text-[11px] uppercase tracking-widest font-bold text-[#658086]"
+                  data-i18n="ui.home.compatiblePlatforms"
                 >
                   Compatible Platforms
                 </p>
@@ -199,6 +199,7 @@
                     </div>
                     <span
                       class="text-sm font-semibold text-[#121617] dark:text-white"
+                      data-i18n="ui.home.youtube"
                       >YouTube</span
                     >
                   </div>
@@ -210,6 +211,7 @@
                     </div>
                     <span
                       class="text-sm font-semibold text-[#121617] dark:text-white"
+                      data-i18n="ui.home.xcom"
                       >X.com</span
                     >
                   </div>
@@ -228,50 +230,7 @@
       <!-- Video Details -->
       <div data-view="view-video-details" class="h-full hidden">
         <div class="flex h-screen overflow-hidden">
-          <aside
-            class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-background-dark flex flex-col"
-          >
-            <div class="p-6 flex items-center gap-3">
-              <img
-                src="../assets/app_icon.png"
-                alt="Squirrel"
-                class="size-10 rounded-lg"
-              />
-              <div>
-                <h1 class="text-lg font-bold leading-tight">Squirrel</h1>
-                <p class="text-xs text-gray-500">Video Downloader</p>
-              </div>
-            </div>
-            <nav class="flex-1 px-4 space-y-1">
-              <a
-                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                href="#"
-                data-route="home"
-                data-nav="home"
-              >
-                <span class="material-symbols-outlined">home</span> Home
-              </a>
-              <a
-                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-                href="#"
-                data-route="downloads"
-                data-nav="downloads"
-              >
-                <span class="material-symbols-outlined">dashboard</span>
-                Dashboard
-              </a>
-            </nav>
-            <div class="p-4 mt-auto border-t border-gray-100 dark:border-gray-800">
-              <a
-                class="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg bg-primary/10 text-primary dark:bg-primary/20"
-                href="#"
-                data-route="settings"
-                data-nav="settings"
-              >
-                <span class="material-symbols-outlined">settings</span> Settings
-              </a>
-            </div>
-          </aside>
+          <div data-sidebar></div>
           <main
             class="flex-1 flex flex-col overflow-hidden bg-background-light dark:bg-background-dark"
           >
@@ -287,10 +246,14 @@
                   <span class="material-symbols-outlined text-sm"
                     >arrow_back</span
                   >
-                  Search
+                  <span data-i18n="ui.details.breadcrumbSearch">Search</span>
                 </a>
                 <span class="text-gray-300">/</span>
-                <span class="text-gray-900 dark:text-white">Video Details</span>
+                <span
+                  class="text-gray-900 dark:text-white"
+                  data-i18n="ui.details.title"
+                  >Video Details</span
+                >
               </div>
               <div class="flex items-center gap-4">
                 <button
@@ -394,7 +357,7 @@
                           <span class="material-symbols-outlined text-sm"
                             >share</span
                           >
-                          Copy Link
+                          <span data-i18n="ui.details.copyLink">Copy Link</span>
                         </button>
                       </div>
                     </div>
@@ -410,8 +373,10 @@
                         id="details-tip"
                         class="text-xs leading-relaxed text-gray-600 dark:text-gray-400"
                       >
-                        Squirrel Engine: choose Max Quality for a quick best
-                        pick, or show all streams to decide manually.
+                        <span data-i18n="ui.details.tip"
+                          >Squirrel Engine: choose Max Quality for a quick best
+                          pick, or show all streams to decide manually.</span
+                        >
                       </p>
                     </div>
                   </div>
@@ -423,6 +388,7 @@
                     >
                       <p
                         class="text-xs font-bold text-gray-400 uppercase mb-3 px-1"
+                        data-i18n="ui.details.qualityProfile"
                       >
                         Quality Profile
                       </p>
@@ -434,13 +400,13 @@
                           class="flex-1 py-1.5 text-xs font-bold bg-white dark:bg-gray-700 shadow-sm rounded-md text-gray-900 dark:text-white"
                           data-quality="max"
                         >
-                          Max Quality
+                          <span data-i18n="ui.details.maxQuality">Max Quality</span>
                         </button>
                         <button
                           class="flex-1 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400"
                           data-quality="all"
                         >
-                          All Available
+                          <span data-i18n="ui.details.allAvailable">All Available</span>
                         </button>
                       </div>
                     </div>
@@ -449,6 +415,7 @@
                     >
                       <p
                         class="text-xs font-bold text-gray-400 uppercase mb-3 px-1"
+                        data-i18n="ui.details.outputFormat"
                       >
                         Output Format
                       </p>
@@ -460,19 +427,19 @@
                           class="flex-1 py-1.5 text-[10px] font-bold bg-white dark:bg-gray-700 shadow-sm rounded-md text-gray-900 dark:text-white"
                           data-output="video+audio"
                         >
-                          Video+Audio
+                          <span data-i18n="ui.details.videoAudio">Video+Audio</span>
                         </button>
                         <button
                           class="flex-1 py-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400"
                           data-output="video-only"
                         >
-                          Video Only
+                          <span data-i18n="ui.details.videoOnly">Video Only</span>
                         </button>
                         <button
                           class="flex-1 py-1.5 text-[10px] font-bold text-gray-500 dark:text-gray-400"
                           data-output="audio"
                         >
-                          Audio
+                          <span data-i18n="ui.details.audioOnly">Audio</span>
                         </button>
                       </div>
                     </div>
@@ -483,12 +450,16 @@
                     <div
                       class="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-gray-50/50 dark:bg-background-dark"
                     >
-                      <h3 class="font-bold text-sm">Available Streams</h3>
+                      <h3 class="font-bold text-sm" data-i18n="ui.details.availableStreams">
+                        Available Streams
+                      </h3>
                       <div class="flex items-center gap-2">
                         <span
                           class="w-2 h-2 rounded-full bg-green-500 animate-pulse"
                         ></span>
-                        <span class="text-[10px] text-gray-500 font-medium"
+                        <span
+                          class="text-[10px] text-gray-500 font-medium"
+                          data-i18n="ui.details.ready"
                           >Ready</span
                         >
                       </div>
@@ -504,6 +475,7 @@
                     <div>
                       <p
                         class="text-xs font-semibold text-gray-500 uppercase"
+                        data-i18n="ui.details.totalSelected"
                       >
                         Total Selected
                       </p>
@@ -516,7 +488,9 @@
                         <span class="material-symbols-outlined text-[10px]"
                           >hard_drive</span
                         >
-                        Free space depends on your disk.
+                        <span data-i18n="ui.details.freeSpaceHint"
+                          >Free space depends on your disk.</span
+                        >
                       </p>
                     </div>
                     <button
@@ -527,7 +501,7 @@
                       <span class="material-symbols-outlined"
                         >download_for_offline</span
                       >
-                      Download All
+                      <span data-i18n="ui.details.downloadAll">Download All</span>
                     </button>
                   </div>
                 </div>
@@ -540,83 +514,7 @@
       <!-- Downloads Dashboard -->
       <div data-view="view-downloads" class="h-full hidden">
         <div class="flex h-screen overflow-hidden">
-          <aside
-            class="w-64 border-r border-[#e5e7eb] dark:border-[#333] bg-white/80 dark:bg-background-dark/80 sidebar-blur flex flex-col justify-between p-4 z-20"
-          >
-            <div class="flex flex-col gap-8">
-              <div class="flex items-center gap-3 px-2">
-                <img
-                  src="../assets/app_icon.png"
-                  alt="Squirrel"
-                  class="size-10 rounded-xl"
-                />
-                <div class="flex flex-col">
-                  <h1
-                    class="text-[#121617] dark:text-white text-base font-bold leading-tight"
-                  >
-                    Squirrel
-                  </h1>
-                  <p class="text-[#658086] text-xs font-medium">
-                    Desktop Video Utility
-                  </p>
-                </div>
-              </div>
-              <nav class="flex flex-col gap-1">
-                <a
-                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                  href="#"
-                  data-route="home"
-                  data-nav="home"
-                >
-                  <span class="material-symbols-outlined text-[22px]"
-                    >home</span
-                  >
-                  <p class="text-sm font-medium">Home</p>
-                </a>
-                <a
-                  class="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-primary/10 text-primary"
-                  href="#"
-                  data-route="downloads"
-                  data-nav="downloads"
-                >
-                  <span
-                    class="material-symbols-outlined text-[22px] font-variation-fill-1"
-                    >dashboard</span
-                  >
-                  <p class="text-sm font-semibold">Dashboard</p>
-                </a>
-              </nav>
-            </div>
-            <div class="flex flex-col gap-3">
-              <a
-                class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#658086] hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                href="#"
-                data-route="settings"
-                data-nav="settings"
-              >
-                <span class="material-symbols-outlined text-[22px]"
-                  >settings</span
-                >
-                <p class="text-sm font-medium">Settings</p>
-              </a>
-              <div class="p-4 bg-primary/5 rounded-xl border border-primary/10">
-              <div class="flex justify-between items-center mb-2">
-                <span
-                  class="text-[10px] uppercase tracking-wider font-bold text-primary/70"
-                  >Total Speed</span
-                >
-                <span class="text-xs font-bold text-primary" id="total-speed"
-                  >0 KB/s</span
-                >
-              </div>
-              <div
-                class="w-full bg-primary/10 h-1 rounded-full overflow-hidden"
-              >
-                <div class="bg-primary h-full w-1/6" id="speed-bar"></div>
-              </div>
-              </div>
-            </div>
-          </aside>
+          <div data-sidebar></div>
           <main class="flex-1 flex flex-col relative overflow-hidden">
             <header
               class="h-16 flex items-center justify-between px-8 border-b border-[#e5e7eb] dark:border-[#333] bg-white dark:bg-[#1c1e22]"
@@ -625,12 +523,14 @@
                 <button
                   class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full"
                   data-action="route-back"
+                  data-i18n-title="ui.common.back"
                   title="Back"
                 >
                   <span class="material-symbols-outlined">arrow_back</span>
                 </button>
                 <h2
                   class="text-xl font-bold text-[#121617] dark:text-white"
+                  data-i18n="ui.dashboard.title"
                 >
                   Downloads
                 </h2>
@@ -643,10 +543,22 @@
                   </div>
                   <div
                     class="px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 text-[11px] font-bold"
-                    id="stat-finished"
+                    id="stat-paused"
                   >
-                    0 Finished
+                    0 Pause
                   </div>
+                </div>
+                <div class="flex items-center gap-2 ml-4">
+                  <span
+                    class="text-[10px] uppercase tracking-wider font-bold text-gray-400"
+                    data-i18n="ui.dashboard.totalSpeed"
+                    >Total Speed</span
+                  >
+                  <span
+                    class="text-xs font-bold text-primary"
+                    id="total-speed"
+                    >0 KB/s</span
+                  >
                 </div>
               </div>
               <div class="flex-1"></div>
@@ -655,24 +567,28 @@
               <button
                 class="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-semibold"
                 data-filter="all"
+                data-i18n="ui.dashboard.filters.all"
               >
                 All Tasks
               </button>
               <button
                 class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
                 data-filter="downloading"
+                data-i18n="ui.dashboard.filters.downloading"
               >
                 Downloading
               </button>
               <button
                 class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
                 data-filter="paused"
+                data-i18n="ui.dashboard.filters.paused"
               >
                 Paused
               </button>
               <button
                 class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
                 data-filter="completed"
+                data-i18n="ui.dashboard.filters.completed"
               >
                 Completed
               </button>
@@ -684,32 +600,6 @@
               class="absolute bottom-0 left-0 right-0 h-20 bg-white/90 dark:bg-[#1c1e22]/90 border-t border-[#e5e7eb] dark:border-[#333] sidebar-blur px-8 flex items-center justify-between z-10"
             >
               <div class="flex items-center gap-3">
-                <div
-                  class="size-8 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-500"
-                >
-                  <span class="material-symbols-outlined text-xl">folder</span>
-                </div>
-                <div>
-                  <p
-                    class="text-[10px] text-[#658086] font-bold uppercase tracking-wider leading-none mb-1"
-                  >
-                    Save Path
-                  </p>
-                  <p
-                    class="text-sm font-medium text-[#121617] dark:text-white"
-                    id="dashboard-save-path"
-                  >
-                    --
-                  </p>
-                </div>
-                <button
-                  class="ml-2 px-3 py-1 text-[11px] font-bold text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                  id="dashboard-change-path"
-                >
-                  Change
-                </button>
-              </div>
-              <div class="flex items-center gap-3">
                 <button
                   id="pause-all-btn"
                   class="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-[#121617] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
@@ -717,7 +607,7 @@
                   <span class="material-symbols-outlined text-lg"
                     >pause_circle</span
                   >
-                  <span>Pause All</span>
+                  <span data-i18n="ui.dashboard.pauseAll">Pause All</span>
                 </button>
                 <button
                   id="clear-finished-btn"
@@ -726,7 +616,7 @@
                   <span class="material-symbols-outlined text-lg"
                     >clear_all</span
                   >
-                  <span>Clear Finished</span>
+                  <span data-i18n="ui.dashboard.clearFinished">Clear Finished</span>
                 </button>
               </div>
             </footer>
@@ -737,89 +627,17 @@
       <!-- Settings -->
       <div data-view="view-settings" class="h-full hidden">
         <div class="flex h-screen w-full overflow-hidden">
-          <aside
-            class="w-64 border-r border-gray-200 dark:border-gray-800 bg-white/70 dark:bg-background-dark/70 sidebar-blur flex flex-col justify-between p-6"
-          >
-            <div class="space-y-8">
-              <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                  <img
-                    src="../assets/app_icon.png"
-                    alt="Squirrel"
-                    class="w-8 h-8 rounded-lg"
-                  />
-                  <h1
-                    class="text-xl font-extrabold tracking-tight text-[#121617] dark:text-white"
-                  >
-                    Squirrel
-                  </h1>
-                </div>
-                <p
-                  class="text-xs font-semibold text-gray-400 uppercase tracking-widest pl-1 mt-4"
-                >
-                  Preferences
-                </p>
-              </div>
-              <nav class="flex flex-col gap-1">
-                <a
-                  class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  href="#"
-                  data-route="home"
-                  data-nav="home"
-                >
-                  <span class="material-symbols-outlined">home</span>
-                  <span class="text-sm font-medium">Home</span>
-                </a>
-                <a
-                  class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                  href="#"
-                  data-route="downloads"
-                  data-nav="downloads"
-                >
-                  <span class="material-symbols-outlined">dashboard</span>
-                  <span class="text-sm font-medium">Dashboard</span>
-                </a>
-              </nav>
-            </div>
-            <div
-              class="pt-6 border-t border-gray-100 dark:border-gray-800 flex flex-col gap-4"
-            >
-              <a
-                class="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-primary/10 text-primary"
-                href="#"
-                data-route="settings"
-                data-nav="settings"
-              >
-                <span class="material-symbols-outlined">settings</span>
-                <span class="text-sm font-semibold">Settings</span>
-              </a>
-              <div
-                class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-100 dark:border-gray-800"
-              >
-                <p class="text-[10px] text-gray-400 font-bold uppercase mb-1">
-                  Status
-                </p>
-                <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-green-500"></div>
-                  <p
-                    class="text-xs font-medium text-gray-600 dark:text-gray-400"
-                    id="settings-version"
-                  >
-                    Up to date (v1.0.0)
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
+          <div data-sidebar></div>
           <main class="flex-1 overflow-y-auto bg-white dark:bg-background-dark">
             <div class="max-w-[800px] mx-auto py-12 px-10 space-y-12">
               <header class="space-y-2">
                 <h2
                   class="text-4xl font-black tracking-tight text-[#121617] dark:text-white"
+                  data-i18n="ui.settings.title"
                 >
                   General
                 </h2>
-                <p class="text-gray-500 text-lg">
+                <p class="text-gray-500 text-lg" data-i18n="ui.settings.subtitle">
                   Manage your download preferences and application behavior.
                 </p>
               </header>
@@ -828,10 +646,11 @@
                 <div>
                   <h3
                     class="text-xl font-bold text-[#121617] dark:text-white"
+                    data-i18n="ui.settings.downloadLocation"
                   >
                     Download Location
                   </h3>
-                  <p class="text-sm text-gray-400">
+                  <p class="text-sm text-gray-400" data-i18n="ui.settings.downloadLocationDesc">
                     Choose where your downloaded files will be stored.
                   </p>
                 </div>
@@ -839,6 +658,7 @@
                   <label class="flex-1 space-y-2">
                     <span
                       class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                      data-i18n="ui.settings.defaultSavePath"
                       >Default save path</span
                     >
                     <div class="relative flex items-center">
@@ -857,6 +677,7 @@
                   <button
                     id="settings-change-path"
                     class="h-12 px-6 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 text-sm font-bold rounded-xl transition-colors"
+                    data-i18n="ui.settings.change"
                   >
                     Change...
                   </button>
@@ -866,10 +687,11 @@
                 <div>
                   <h3
                     class="text-xl font-bold text-[#121617] dark:text-white"
+                    data-i18n="ui.settings.qualityPreferences"
                   >
                     Quality Preferences
                   </h3>
-                  <p class="text-sm text-gray-400">
+                  <p class="text-sm text-gray-400" data-i18n="ui.settings.qualityDesc">
                     Set the default resolution for new downloads.
                   </p>
                 </div>
@@ -877,33 +699,85 @@
                   <div class="space-y-2">
                     <label
                       class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                      data-i18n="ui.settings.defaultVideoQuality"
                       >Default Video Quality</label
                     >
                     <select
                       id="settings-video-quality"
                       class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary"
                     >
-                      <option value="best">Best Available (Auto)</option>
-                      <option value="2160">4K UHD (2160p)</option>
-                      <option value="1440">2K QHD (1440p)</option>
-                      <option value="1080">Full HD (1080p)</option>
-                      <option value="720">HD (720p)</option>
+                      <option value="best" data-i18n="ui.settings.videoQualityOptions.best">
+                        Best Available (Auto)
+                      </option>
+                      <option value="2160" data-i18n="ui.settings.videoQualityOptions.u2160">
+                        4K UHD (2160p)
+                      </option>
+                      <option value="1440" data-i18n="ui.settings.videoQualityOptions.u1440">
+                        2K QHD (1440p)
+                      </option>
+                      <option value="1080" data-i18n="ui.settings.videoQualityOptions.u1080">
+                        Full HD (1080p)
+                      </option>
+                      <option value="720" data-i18n="ui.settings.videoQualityOptions.u720">
+                        HD (720p)
+                      </option>
                     </select>
                   </div>
                   <div class="space-y-2">
                     <label
                       class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                      data-i18n="ui.settings.preferredAudioFormat"
                       >Preferred Audio Format</label
                     >
                     <select
                       id="settings-audio-format"
                       class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary"
                     >
-                      <option value="mp3">High Quality (MP3 320kbps)</option>
-                      <option value="flac">Lossless (FLAC)</option>
-                      <option value="m4a">Standard (M4A)</option>
+                      <option value="mp3" data-i18n="ui.settings.audioFormatOptions.mp3">
+                        High Quality (MP3 320kbps)
+                      </option>
+                      <option value="flac" data-i18n="ui.settings.audioFormatOptions.flac">
+                        Lossless (FLAC)
+                      </option>
+                      <option value="m4a" data-i18n="ui.settings.audioFormatOptions.m4a">
+                        Standard (M4A)
+                      </option>
                     </select>
                   </div>
+                </div>
+              </section>
+              <section class="space-y-6 pt-4">
+                <div>
+                  <h3
+                    class="text-xl font-bold text-[#121617] dark:text-white"
+                    data-i18n="ui.settings.language"
+                  >
+                    Language
+                  </h3>
+                  <p class="text-sm text-gray-400" data-i18n="ui.settings.languageDesc">
+                    Select your interface language.
+                  </p>
+                </div>
+                <div class="max-w-md space-y-2">
+                  <label
+                    class="text-sm font-bold text-gray-700 dark:text-gray-300"
+                    data-i18n="ui.settings.languageLabel"
+                    >App Language</label
+                  >
+                  <select
+                    id="settings-language"
+                    class="w-full h-12 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl px-4 text-sm font-medium focus:ring-primary focus:border-primary"
+                  >
+                    <option value="zh-Hans" data-i18n="ui.settings.languageOptions.zhHans">
+                      简体中文
+                    </option>
+                    <option value="zh-Hant" data-i18n="ui.settings.languageOptions.zhHant">
+                      繁体中文
+                    </option>
+                    <option value="en" data-i18n="ui.settings.languageOptions.en">
+                      English
+                    </option>
+                  </select>
                 </div>
               </section>
               <hr class="border-gray-100 dark:border-gray-800" />
@@ -911,10 +785,11 @@
                 <div>
                   <h3
                     class="text-xl font-bold text-[#121617] dark:text-white"
+                    data-i18n="ui.settings.appBehavior"
                   >
                     App Behavior
                   </h3>
-                  <p class="text-sm text-gray-400">
+                  <p class="text-sm text-gray-400" data-i18n="ui.settings.appBehaviorDesc">
                     Control how the application interacts with your system.
                   </p>
                 </div>
@@ -925,10 +800,11 @@
                     <div class="space-y-0.5">
                       <p
                         class="text-sm font-bold text-[#121617] dark:text-white"
+                        data-i18n="ui.settings.launchAtStartup"
                       >
                         Launch at Startup
                       </p>
-                      <p class="text-xs text-gray-500">
+                      <p class="text-xs text-gray-500" data-i18n="ui.settings.launchAtStartupDesc">
                         Automatically start Squirrel when you log in.
                       </p>
                     </div>
@@ -987,10 +863,11 @@
                     <div class="space-y-0.5">
                       <p
                         class="text-sm font-bold text-[#121617] dark:text-white"
+                        data-i18n="ui.settings.desktopNotifications"
                       >
                         Desktop Notifications
                       </p>
-                      <p class="text-xs text-gray-500">
+                      <p class="text-xs text-gray-500" data-i18n="ui.settings.desktopNotificationsDesc">
                         Show a notification when a download is finished.
                       </p>
                     </div>
@@ -1049,10 +926,11 @@
                     <div class="space-y-0.5">
                       <p
                         class="text-sm font-bold text-[#121617] dark:text-white"
+                        data-i18n="ui.settings.darkMode"
                       >
                         Dark Mode
                       </p>
-                      <p class="text-xs text-gray-500">
+                      <p class="text-xs text-gray-500" data-i18n="ui.settings.darkModeDesc">
                         Switch between light and dark visual styles.
                       </p>
                     </div>
@@ -1110,6 +988,7 @@
                   <button
                     class="w-full bg-primary hover:bg-primary/90 text-white text-sm font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-primary/20"
                     id="check-updates-settings"
+                    data-i18n="ui.settings.checkUpdates"
                   >
                     Check for Updates
                   </button>
@@ -1127,7 +1006,9 @@
                     >
                   </div>
                   <div class="text-center md:text-left">
-                    <h4 class="text-2xl font-bold">Squirrel for Desktop</h4>
+                    <h4 class="text-2xl font-bold" data-i18n="ui.settings.aboutTitle">
+                      Squirrel for Desktop
+                    </h4>
                     <p class="text-white/80 mt-1" id="about-version">
                       Version 1.0.0
                     </p>
@@ -1135,16 +1016,19 @@
                       <a
                         class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
                         href="#"
+                        data-i18n="ui.settings.privacy"
                         >Privacy Policy</a
                       >
                       <a
                         class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
                         href="#"
+                        data-i18n="ui.settings.terms"
                         >Terms of Service</a
                       >
                       <a
                         class="text-xs font-bold uppercase tracking-widest text-white/60 hover:text-white transition-colors"
                         href="#"
+                        data-i18n="ui.settings.help"
                         >Help Center</a
                       >
                     </div>
@@ -1156,6 +1040,7 @@
                 <div class="absolute top-0 right-0 p-4">
                   <span
                     class="px-2 py-1 bg-white/20 rounded-lg text-[10px] font-bold uppercase backdrop-blur-sm"
+                    data-i18n="ui.settings.stableRelease"
                     >Stable Release</span
                   >
                 </div>
@@ -1171,6 +1056,7 @@
       class="fixed bottom-6 right-6 flex flex-col gap-3 z-50"
     ></div>
 
+    <script src="js/strings.js"></script>
     <script src="js/api.js"></script>
     <script src="js/router.js"></script>
     <script src="js/app.js"></script>

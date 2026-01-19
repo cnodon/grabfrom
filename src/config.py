@@ -17,6 +17,9 @@ class Config:
         'download_path': str(Path.home() / 'Documents' / 'Squirrel'),
         'default_video_quality': 'best',  # best, 2160, 1440, 1080, 720
         'default_audio_format': 'mp3',    # mp3, m4a, flac
+        'save_audio_on_complete': True,
+        'audio_extract_format': 'm4a',    # m4a, mp3, flac
+        'language': 'zh-Hans',            # zh-Hans, zh-Hant, en
         'max_concurrent_downloads': 3,
         'launch_at_startup': False,
         'desktop_notifications': True,

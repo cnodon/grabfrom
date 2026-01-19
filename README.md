@@ -9,6 +9,7 @@
 - 🔀 灵活输出 - 视频+音频 / 仅视频 / 仅音频
 - 📊 下载管理 - 多任务并发、暂停恢复、断点续传
 - 🎨 现代界面 - 4 界面设计，操作流畅
+- 🔊 下载完成后自动保存音频（用于字幕/后处理，需 ffmpeg）
 
 > 📖 **详细功能说明**: [prd.md](./prd.md)
 
@@ -18,7 +19,7 @@
 
 ### 方式一：下载安装包（推荐）
 
-从 [Releases](https://github.com/yourusername/grabfrom/releases) 页面下载：
+从 [Releases](https://github.com/yourusername/squirrel/releases) 页面下载：
 - **macOS**: `Squirrel-macOS.dmg`
 - **Windows**: `Squirrel-Windows.exe`
 
@@ -26,8 +27,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/yourusername/grabfrom.git
-cd grabfrom
+git clone https://github.com/yourusername/squirrel.git
+cd squirrel
 
 # 创建虚拟环境（推荐）
 python3 -m venv venv
@@ -94,6 +95,44 @@ python main.py
 | 打包 | PyInstaller |
 
 > 📖 **详细架构说明**: [tech_arch.md](./tech_arch.md)
+
+---
+
+## ⚙️ 额外配置
+
+### 自动保存音频
+
+默认会在下载完成后生成单独的音频文件，便于后续字幕/转写处理（依赖 ffmpeg）。
+
+配置项位于 `src/config.py`：
+- `save_audio_on_complete`: 是否保存音频（默认 `True`）
+- `audio_extract_format`: 音频格式（`m4a`/`mp3`/`flac`，默认 `m4a`）
+
+### 文案与字符串管理
+
+- 后端字符串：`src/strings.py`
+- 前端字符串：`ui/js/strings.js`
+
+---
+
+## 🖼️ 图标与品牌
+
+- GUI 界面 logo：替换 `assets/app_icon.png`
+- 系统应用图标：
+  - macOS：使用 `.icns` 并在打包时指定
+  - Windows：使用 `.ico` 并在打包时指定
+
+### 生成图标与打包
+
+```bash
+# 从 assets/app_icon.png 生成 .icns / .ico
+python scripts/generate_icons.py
+# 或
+sh scripts/make_icons.sh
+
+# 使用 PyInstaller spec 打包
+pyinstaller scripts/squirrel.spec
+```
 
 ---
 

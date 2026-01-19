@@ -12,6 +12,7 @@ from enum import Enum
 import yt_dlp
 
 from src.utils import format_size, format_duration
+from src.strings import Messages
 
 
 class Platform(Enum):
@@ -246,7 +247,7 @@ class URLParser:
         platform, video_id = self.identify_platform(url)
 
         if platform == Platform.UNKNOWN:
-            return {'error': '不支持的 URL 格式，请输入 YouTube 或 X.com 链接'}
+            return {'error': Messages.UNSUPPORTED_URL}
 
         try:
             with yt_dlp.YoutubeDL(self._build_ydl_opts()) as ydl:
@@ -306,15 +307,15 @@ class URLParser:
                         continue
 
             if 'Video unavailable' in error_msg:
-                return {'error': '视频不可用或已被删除'}
+                return {'error': Messages.VIDEO_UNAVAILABLE}
             elif 'Private video' in error_msg:
-                return {'error': '这是一个私密视频，无法访问'}
+                return {'error': Messages.PRIVATE_VIDEO}
             elif 'Sign in' in error_msg:
-                return {'error': '此视频需要登录才能观看，请在浏览器中登录 X.com 后重试'}
+                return {'error': Messages.LOGIN_REQUIRED}
             else:
-                return {'error': f'获取视频信息失败: {error_msg}'}
+                return {'error': Messages.INFO_FETCH_FAILED.format(error=error_msg)}
         except Exception as e:
-            return {'error': f'解析出错: {str(e)}'}
+            return {'error': Messages.PARSE_ERROR.format(error=str(e))}
 
 
 # 全局解析器实例

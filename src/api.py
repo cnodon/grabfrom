@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Optional
 
 from src.config import get_config
+from src.strings import Messages
 from src.parser import get_parser
 from src.downloader import get_download_manager
 from src.utils import open_folder as util_open_folder
@@ -61,7 +62,7 @@ class SquirrelAPI:
             出错时返回 {'error': '错误信息'}
         """
         if not url or not url.strip():
-            return {'error': '请输入有效的 URL'}
+            return {'error': Messages.INVALID_URL}
 
         return self._parser.extract_info(url.strip())
 
@@ -198,7 +199,7 @@ class SquirrelAPI:
         task = self._downloader.get_task(task_id)
         if task:
             return task
-        return {'error': '任务不存在'}
+        return {'error': Messages.TASK_NOT_FOUND}
 
     def get_all_tasks(self) -> list:
         """
@@ -288,7 +289,7 @@ class SquirrelAPI:
             {'path': str} 选择的路径，或 {'cancelled': True}
         """
         if not self._window:
-            return {'error': '窗口未初始化'}
+            return {'error': Messages.WINDOW_NOT_READY}
 
         result = self._window.create_file_dialog(
             webview.FOLDER_DIALOG,
@@ -314,7 +315,7 @@ class SquirrelAPI:
 
         folder_path = Path(path)
         if not folder_path.exists():
-            return {'success': False, 'error': '文件夹不存在'}
+            return {'success': False, 'error': Messages.FOLDER_NOT_FOUND}
 
         success = util_open_folder(folder_path)
         return {'success': success}
@@ -338,8 +339,8 @@ class SquirrelAPI:
         fallback_dir = file_path.parent if file_path.parent.exists() else self._config.download_path
         success = util_open_folder(fallback_dir)
         if success:
-            return {'success': True, 'warning': '文件不存在，已打开下载目录'}
-        return {'success': False, 'error': '文件不存在'}
+            return {'success': True, 'warning': Messages.FILE_NOT_FOUND_OPENED}
+        return {'success': False, 'error': Messages.FILE_NOT_FOUND}
 
     # ==================== 应用信息 ====================
 
