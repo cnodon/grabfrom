@@ -19,6 +19,7 @@ class Platform(Enum):
     """支持的平台"""
     YOUTUBE = 'youtube'
     TWITTER = 'twitter'  # X.com
+    BILIBILI = 'bilibili'
     UNKNOWN = 'unknown'
 
 
@@ -116,6 +117,12 @@ class URLParser:
         r'(?:https?://)?(?:www\.)?(?:twitter\.com|x\.com)/\w+/status/(\d+)',
     ]
 
+    # Bilibili URL 正则
+    BILIBILI_PATTERNS = [
+        r'(?:https?://)?(?:www\.|m\.)?bilibili\.com/video/(BV[a-zA-Z0-9]+)',
+        r'(?:https?://)?(?:www\.|m\.)?bilibili\.com/video/av(\d+)',
+    ]
+
     def __init__(self):
         """初始化解析器"""
         self._ydl_opts = {
@@ -124,6 +131,19 @@ class URLParser:
             'extract_flat': False,
             'retries': 3,
             'socket_timeout': 20,
+            'http_headers': {
+                'User-Agent': (
+                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    'Chrome/120.0.0.0 Safari/537.36'
+                ),
+                'Accept-Language': 'en-US,en;q=0.9',
+            },
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                }
+            },
         }
 
     def _build_ydl_opts(self, cookies_from_browser: Optional[str] = None) -> dict:
@@ -154,6 +174,12 @@ class URLParser:
             match = re.search(pattern, url)
             if match:
                 return Platform.TWITTER, match.group(1)
+
+        # 检查 Bilibili
+        for pattern in self.BILIBILI_PATTERNS:
+            match = re.search(pattern, url)
+            if match:
+                return Platform.BILIBILI, match.group(1)
 
         return Platform.UNKNOWN, None
 

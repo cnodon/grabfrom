@@ -1,16 +1,16 @@
 # Squirrel
 
-一个简洁高效的跨平台视频下载工具，支持从 YouTube 和 X.com 下载视频到本地。
+一个简洁高效的跨平台视频下载工具，支持从 YouTube、X.com 和 Bilibili 下载视频到本地。
 
 ## ✨ 功能亮点
 
-- 📹 支持 YouTube 和 X.com (Twitter) 视频下载
+- 📹 支持 YouTube、X.com (Twitter) 和 Bilibili 视频下载
 - 🎬 智能解析 - 自动选择最高质量或手动选择
 - 🔀 灵活输出 - 视频+音频 / 仅视频 / 仅音频
 - 📊 下载管理 - 多任务并发、暂停恢复、断点续传
 - 🎨 现代界面 - 4 界面设计，操作流畅
 - 🔊 下载完成后自动保存音频（用于字幕/后处理，需 ffmpeg）
-- 🗂️ 下载记录（规划中，使用 SQLite 存储）
+- 🗂️ 下载记录（SQLite 存储，支持筛选与重试）
 
 > 📖 **详细功能说明**: [prd.md](./prd.md)
 
@@ -38,6 +38,9 @@ source venv/bin/activate  # macOS/Linux
 
 # 安装依赖
 pip install -r requirements.txt
+
+# 更新 yt-dlp（建议遇到 403 或格式错误时执行）
+pip install -U yt-dlp
 
 # 运行应用
 python main.py
@@ -94,7 +97,7 @@ python main.py
 | 后端 | Python 3.9+ / pywebview / yt-dlp |
 | 前端 | HTML5 / Tailwind CSS / JavaScript |
 | 打包 | PyInstaller |
-| 数据存储 | SQLite（规划用于下载记录） |
+| 数据存储 | SQLite（下载记录） |
 
 > 📖 **详细架构说明**: [tech_arch.md](./tech_arch.md)
 
@@ -117,12 +120,12 @@ python main.py
 
 ---
 
-## 🗂️ 下载记录（规划中）
+## 🗂️ 下载记录
 
 - 记录内容：URL、标题、平台、格式/清晰度、文件大小、保存路径、开始/结束时间、状态（完成/失败/取消）、错误原因、是否提取音频
 - 历史列表：按时间/状态/平台/关键字筛选，支持搜索与排序
 - 快捷操作：打开文件夹、复制链接、重新下载（跳转到详情界面）、删除单条、清空历史
-- 技术方案：SQLite 本地数据库存储
+- 技术方案：SQLite 本地数据库存储（`~/.grabfrom/history.db`）
 
 ---
 
@@ -154,13 +157,14 @@ pyinstaller scripts/squirrel.spec
 | YouTube | `https://www.youtube.com/watch?v=xxxxx` |
 | YouTube 短链接 | `https://youtu.be/xxxxx` |
 | X.com | `https://x.com/user/status/xxxxx` |
+| Bilibili | `https://www.bilibili.com/video/BVxxxxxx/` |
 | Twitter | `https://twitter.com/user/status/xxxxx` |
 
 ---
 
 ## 🗺️ 路线图
 
-- ✅ v1.0.0 - 核心功能（YouTube/X.com 下载）
+- ✅ v1.0.0 - 核心功能（YouTube/X.com/Bilibili 下载）
 - 🚧 v1.1.0 - 增强功能（完整设置、批量导入、下载记录）
 - 📅 v1.2.0 - 扩展功能（播放列表、更多网站）
 - 📅 v2.0.0 - 高级功能（视频预览、字幕下载）

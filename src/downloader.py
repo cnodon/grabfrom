@@ -20,6 +20,7 @@ import yt_dlp
 from src.config import get_config
 from src.strings import Messages
 from src.utils import sanitize_filename, get_unique_filepath, format_size, format_speed, format_eta
+from src.history import get_history_store
 
 
 class TaskStatus(Enum):
@@ -64,12 +65,16 @@ class DownloadTask:
     url: str
     title: str
     thumbnail: str = ""
+    platform: str = ""
     format_id: str = "best"
+    quality_label: str = ""
+    resolution: str = ""
     output_format: str = "mp4"  # mp4, webm, mp3, m4a
     include_audio: bool = True
     has_audio: bool = True
     has_video: bool = True
     format_ext: str = ""
+    history_id: Optional[int] = None
     audio_path: Optional[Path] = None
     output_path: Optional[Path] = None
     status: TaskStatus = TaskStatus.PENDING
@@ -82,10 +87,14 @@ class DownloadTask:
     def to_dict(self) -> dict:
         return {
             'task_id': self.task_id,
+            'history_id': self.history_id,
             'url': self.url,
             'title': self.title,
             'thumbnail': self.thumbnail,
+            'platform': self.platform,
             'format_id': self.format_id,
+            'quality_label': self.quality_label,
+            'resolution': self.resolution,
             'output_format': self.output_format,
             'include_audio': self.include_audio,
             'has_audio': self.has_audio,
@@ -119,6 +128,7 @@ class DownloadManager:
         self._semaphore = threading.Semaphore(max_concurrent)
         self._lock = threading.Lock()
         self._progress_callback: Optional[Callable] = None
+        self._history = get_history_store()
 
     def _register_task(self, task: DownloadTask) -> None:
         """注册任务到管理器内部"""
@@ -253,10 +263,14 @@ class DownloadManager:
 
         task = DownloadTask(
             task_id=task_id,
+            history_id=data.get('history_id'),
             url=data.get('url', ''),
             title=data.get('title', ''),
             thumbnail=data.get('thumbnail', ''),
+            platform=data.get('platform', ''),
             format_id=data.get('format_id', 'best'),
+            quality_label=data.get('quality_label', ''),
+            resolution=data.get('resolution', ''),
             output_format=data.get('output_format', 'mp4'),
             include_audio=bool(data.get('include_audio', True)),
             has_audio=bool(data.get('has_audio', True)),
@@ -317,10 +331,14 @@ class DownloadManager:
         output_format: str,
         title: str,
         thumbnail: str = "",
+        platform: str = "",
+        quality_label: str = "",
+        resolution: str = "",
         include_audio: bool = True,
         has_audio: bool = True,
         has_video: bool = True,
-        format_ext: str = ""
+        format_ext: str = "",
+        history_id: Optional[int] = None,
     ) -> str:
         """
         创建下载任务
@@ -339,10 +357,14 @@ class DownloadManager:
 
         task = DownloadTask(
             task_id=task_id,
+            history_id=history_id,
             url=url,
             title=title,
             thumbnail=thumbnail,
+            platform=platform,
             format_id=format_id,
+            quality_label=quality_label,
+            resolution=resolution,
             output_format=output_format,
             include_audio=include_audio,
             has_audio=has_audio,
@@ -352,6 +374,7 @@ class DownloadManager:
         )
 
         self._register_task(task)
+        self._history.record_start(task)
 
         # 启动下载线程
         thread = threading.Thread(
@@ -378,6 +401,7 @@ class DownloadManager:
             if self._cancel_flags.get(task_id, False):
                 task.status = TaskStatus.CANCELLED
                 self._notify_progress(task_id)
+                self._history.record_finish(task)
                 return
 
             task.status = TaskStatus.DOWNLOADING
@@ -408,12 +432,15 @@ class DownloadManager:
                 task.output_format = task.format_ext
                 task.output_path = output_file
 
+            def attempt_download(opts: dict) -> None:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    ydl.download([task.url])
+
             # 构建 yt-dlp 选项
             ydl_opts = self._build_ydl_opts(task_id, task, output_file)
 
             try:
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([task.url])
+                attempt_download(ydl_opts)
 
                 # 检查是否被取消
                 if self._cancel_flags.get(task_id, False):
@@ -428,15 +455,52 @@ class DownloadManager:
                     task.progress.percent = 100.0
                     self._extract_audio(task)
                     self._cleanup_temp_files(task)
+                    self._history.record_finish(task)
 
             except yt_dlp.utils.DownloadError as e:
-                task.status = TaskStatus.FAILED
-                task.stage = TaskStatus.FAILED.value
-                task.error_message = str(e)
+                error_msg = str(e)
+                retried = False
+                if self._is_format_unavailable(error_msg):
+                    retried = self._retry_with_fallback_format(
+                        task_id,
+                        task,
+                        output_file,
+                        ffmpeg_available,
+                        attempt_download,
+                    )
+                elif self._is_http_403(error_msg):
+                    retried = self._retry_with_cookies(
+                        task_id,
+                        task,
+                        output_file,
+                        attempt_download,
+                    )
+
+                if retried:
+                    if self._cancel_flags.get(task_id, False):
+                        task.status = TaskStatus.CANCELLED
+                    else:
+                        task.status = TaskStatus.COMPLETED
+                        task.stage = TaskStatus.COMPLETED.value
+                        task.completed_at = time.time()
+                        task.progress.percent = 100.0
+                    self._history.record_finish(task)
+                    return
+
+                if self._cancel_flags.get(task_id, False):
+                    task.status = TaskStatus.CANCELLED
+                    task.stage = TaskStatus.CANCELLED.value
+                    task.error_message = ""
+                else:
+                    task.status = TaskStatus.FAILED
+                    task.stage = TaskStatus.FAILED.value
+                    task.error_message = error_msg
+                self._history.record_finish(task)
             except Exception as e:
                 task.status = TaskStatus.FAILED
                 task.stage = TaskStatus.FAILED.value
                 task.error_message = Messages.DOWNLOAD_FAILED.format(error=str(e))
+                self._history.record_finish(task)
 
             self._notify_progress(task_id)
 
@@ -468,6 +532,74 @@ class DownloadManager:
                     entry.unlink()
                 except OSError:
                     pass
+
+    @staticmethod
+    def _is_format_unavailable(error_msg: str) -> bool:
+        return "requested format is not available" in error_msg.lower()
+
+    @staticmethod
+    def _is_http_403(error_msg: str) -> bool:
+        return "http error 403" in error_msg.lower() or "403" in error_msg
+
+    def _retry_with_fallback_format(
+        self,
+        task_id: str,
+        task: DownloadTask,
+        output_file: Path,
+        ffmpeg_available: bool,
+        attempt_download: Callable[[dict], None],
+    ) -> bool:
+        """格式不可用时的降级重试"""
+        if task.output_format in ['mp3', 'm4a', 'flac']:
+            return False
+
+        original_format_id = task.format_id
+        original_has_audio = task.has_audio
+        original_has_video = task.has_video
+
+        if task.include_audio:
+            if ffmpeg_available:
+                task.format_id = ''
+                task.has_audio = False
+                task.has_video = True
+            else:
+                task.format_id = 'best'
+                task.has_audio = True
+                task.has_video = True
+        else:
+            task.format_id = ''
+
+        try:
+            fallback_opts = self._build_ydl_opts(task_id, task, output_file)
+            attempt_download(fallback_opts)
+            return True
+        except Exception:
+            task.format_id = original_format_id
+            task.has_audio = original_has_audio
+            task.has_video = original_has_video
+            return False
+
+    def _retry_with_cookies(
+        self,
+        task_id: str,
+        task: DownloadTask,
+        output_file: Path,
+        attempt_download: Callable[[dict], None],
+    ) -> bool:
+        """403 时尝试使用浏览器 cookies 重试"""
+        for browser in ['chrome', 'edge', 'brave', 'firefox', 'safari']:
+            try:
+                opts = self._build_ydl_opts(
+                    task_id,
+                    task,
+                    output_file,
+                    cookies_from_browser=browser,
+                )
+                attempt_download(opts)
+                return True
+            except Exception:
+                continue
+        return False
 
     def _extract_audio(self, task: DownloadTask) -> None:
         """为视频额外保存音频文件"""
@@ -525,7 +657,13 @@ class DownloadManager:
         except (subprocess.SubprocessError, FileNotFoundError):
             pass
 
-    def _build_ydl_opts(self, task_id: str, task: DownloadTask, output_file: Path) -> dict:
+    def _build_ydl_opts(
+        self,
+        task_id: str,
+        task: DownloadTask,
+        output_file: Path,
+        cookies_from_browser: Optional[str] = None,
+    ) -> dict:
         """构建 yt-dlp 选项"""
 
         def progress_hook(d):
@@ -582,7 +720,22 @@ class DownloadManager:
             'fragment_retries': 5,
             'socket_timeout': 20,
             'continuedl': True,
+            'http_headers': {
+                'User-Agent': (
+                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                    'AppleWebKit/537.36 (KHTML, like Gecko) '
+                    'Chrome/120.0.0.0 Safari/537.36'
+                ),
+                'Accept-Language': 'en-US,en;q=0.9',
+            },
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                }
+            },
         }
+        if cookies_from_browser:
+            opts['cookiesfrombrowser'] = cookies_from_browser
 
         ffmpeg_available = shutil.which('ffmpeg') is not None
 
@@ -688,6 +841,7 @@ class DownloadManager:
         task.stage = TaskStatus.DOWNLOADING.value
         task.error_message = ""
         self._cancel_flags[task_id] = False
+        self._history.record_start(task)
         self._notify_progress(task_id)
 
         thread = self._threads.get(task_id)
@@ -722,6 +876,7 @@ class DownloadManager:
         task.status = TaskStatus.CANCELLED
         task.stage = TaskStatus.CANCELLED.value
         self._notify_progress(task_id)
+        self._history.record_finish(task)
         return True
 
     def get_task(self, task_id: str) -> Optional[dict]:
@@ -742,6 +897,18 @@ class DownloadManager:
         task = self._tasks[task_id]
         if task.status not in [TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.FAILED]:
             return False
+
+        for target in [task.output_path, task.audio_path]:
+            if not target:
+                continue
+            try:
+                path = Path(target)
+                if path.exists():
+                    path.unlink()
+            except OSError:
+                pass
+
+        self._cleanup_temp_files(task)
 
         with self._lock:
             del self._tasks[task_id]

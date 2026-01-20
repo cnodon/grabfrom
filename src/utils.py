@@ -202,12 +202,12 @@ def open_folder(path: Path) -> bool:
         return False
 
 
-def open_file(filepath: Path) -> bool:
+def open_file(path: Path) -> bool:
     """
     使用系统默认程序打开文件
 
     Args:
-        filepath: 文件路径
+        path: 文件路径
 
     Returns:
         是否成功打开
@@ -216,11 +216,11 @@ def open_file(filepath: Path) -> bool:
         system = platform.system()
 
         if system == 'Darwin':  # macOS
-            subprocess.run(['open', str(filepath)], check=True)
+            subprocess.run(['open', str(path)], check=True)
         elif system == 'Windows':
-            subprocess.run(['start', '', str(filepath)], shell=True, check=True)
+            subprocess.run(['cmd', '/c', 'start', '', str(path)], check=True)
         else:  # Linux
-            subprocess.run(['xdg-open', str(filepath)], check=True)
+            subprocess.run(['xdg-open', str(path)], check=True)
 
         return True
     except (subprocess.SubprocessError, FileNotFoundError):

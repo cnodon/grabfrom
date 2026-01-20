@@ -2,7 +2,7 @@
 
 ## 1. 产品概述
 
-**Squirrel** 是一个简洁高效的跨平台视频下载工具，支持从 YouTube 和 X.com 下载视频到本地。
+**Squirrel** 是一个简洁高效的跨平台视频下载工具，支持从 YouTube、X.com 和 Bilibili 下载视频到本地。
 
 ### 1.1 目标用户
 - 需要下载在线视频供离线观看的用户
@@ -11,13 +11,14 @@
 
 ### 1.2 支持平台
 - **桌面系统**: macOS 10.14+, Windows 10/11
-- **视频来源**: YouTube, X.com (Twitter)
+- **视频来源**: YouTube, X.com (Twitter), Bilibili
 
 | 网站 | URL 示例 | 支持状态 |
 |------|---------|---------|
 | YouTube | `https://www.youtube.com/watch?v=xxxxx` | ✅ |
 | YouTube 短链接 | `https://youtu.be/xxxxx` | ✅ |
 | X.com | `https://x.com/user/status/xxxxx` | ✅ |
+| Bilibili | `https://www.bilibili.com/video/BVxxxxx/` | ✅ |
 | Twitter | `https://twitter.com/user/status/xxxxx` | ✅ |
 
 ---
@@ -27,6 +28,7 @@
 ### 2.1 核心功能
 - ✅ 支持 YouTube 视频下载（包括 youtube.com 和 youtu.be 短链接）
 - ✅ 支持 X.com（Twitter）视频下载
+- ✅ 支持 Bilibili 视频下载
 - ✅ 跨平台支持（macOS 和 Windows）
 - ✅ 简洁的 4 界面设计，操作流程清晰直观
 
@@ -306,7 +308,7 @@ A: 在 Download Dashboard 的 History 过滤标签中查看，支持搜索、重
 
 ### v1.0.0 核心功能（当前版本）
 - [x] 4 界面设计架构
-- [x] YouTube 和 X.com 支持
+- [x] YouTube、X.com 和 Bilibili 支持
 - [x] 智能解析选项（最高质量/所有质量）
 - [x] 灵活合并选项（音视频合并/视频 Only/音频 Only）
 - [x] Download Dashboard 下载管理

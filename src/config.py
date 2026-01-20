@@ -93,6 +93,11 @@ class Config:
         """获取任务状态保存路径"""
         return self.config_path.parent / 'tasks.json'
 
+    @property
+    def history_path(self) -> Path:
+        """获取历史记录数据库路径"""
+        return self.config_path.parent / 'history.db'
+
 
 # 全局配置实例
 _config_instance: Optional[Config] = None

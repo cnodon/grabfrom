@@ -14,7 +14,8 @@ from src.config import get_config
 from src.strings import Messages
 from src.parser import get_parser
 from src.downloader import get_download_manager
-from src.utils import open_folder as util_open_folder
+from src.utils import open_folder as util_open_folder, open_file as util_open_file
+from src.history import get_history_store
 
 
 class SquirrelAPI:
@@ -29,6 +30,7 @@ class SquirrelAPI:
         self._config = get_config()
         self._parser = get_parser()
         self._downloader = get_download_manager()
+        self._history = get_history_store()
 
         # 设置下载进度回调
         self._downloader.set_progress_callback(self._on_progress_update)
@@ -96,10 +98,14 @@ class SquirrelAPI:
         output_format: str,
         title: str,
         thumbnail: str = "",
+        platform: str = "",
+        quality_label: str = "",
+        resolution: str = "",
         include_audio: bool = True,
         has_audio: bool = True,
         has_video: bool = True,
-        format_ext: str = ""
+        format_ext: str = "",
+        history_id: Optional[int] = None,
     ) -> dict:
         """
         开始下载任务
@@ -125,10 +131,14 @@ class SquirrelAPI:
                 output_format=output_format,
                 title=title,
                 thumbnail=thumbnail,
+                platform=platform,
+                quality_label=quality_label,
+                resolution=resolution,
                 include_audio=include_audio,
                 has_audio=has_audio,
                 has_video=has_video,
                 format_ext=format_ext,
+                history_id=history_id,
             )
             return {'success': True, 'task_id': task_id}
         except Exception as e:
@@ -220,6 +230,51 @@ class SquirrelAPI:
         count = self._downloader.clear_completed()
         return {'count': count}
 
+    # ==================== 下载历史 ====================
+
+    def get_history(self, filters: dict = None) -> list:
+        """
+        获取下载历史记录
+
+        Args:
+            filters: 过滤条件
+
+        Returns:
+            历史记录列表
+        """
+        filters = filters or {}
+        return self._history.get_history(
+            status=filters.get('status', 'all'),
+            platform=filters.get('platform', 'all'),
+            keyword=filters.get('keyword', ''),
+            sort=filters.get('sort', 'newest'),
+            limit=int(filters.get('limit', 200) or 200),
+            offset=int(filters.get('offset', 0) or 0),
+        )
+
+    def delete_history(self, record_id: int) -> dict:
+        """
+        删除单条历史记录
+
+        Args:
+            record_id: 记录 ID
+
+        Returns:
+            {'success': bool}
+        """
+        success = self._history.delete_history(record_id)
+        return {'success': success}
+
+    def clear_history(self) -> dict:
+        """
+        清空全部历史记录
+
+        Returns:
+            {'count': int}
+        """
+        count = self._history.clear_history()
+        return {'count': count}
+
     # ==================== 设置管理 ====================
 
     def get_settings(self) -> dict:
@@ -291,8 +346,13 @@ class SquirrelAPI:
         if not self._window:
             return {'error': Messages.WINDOW_NOT_READY}
 
+        dialog_type = (
+            webview.FileDialog.FOLDER
+            if hasattr(webview, 'FileDialog')
+            else webview.FOLDER_DIALOG
+        )
         result = self._window.create_file_dialog(
-            webview.FOLDER_DIALOG,
+            dialog_type,
             directory=str(self._config.download_path)
         )
 
@@ -336,6 +396,27 @@ class SquirrelAPI:
             return {'success': success}
 
         # 文件不存在时，尝试打开所在目录或默认下载目录
+        fallback_dir = file_path.parent if file_path.parent.exists() else self._config.download_path
+        success = util_open_folder(fallback_dir)
+        if success:
+            return {'success': True, 'warning': Messages.FILE_NOT_FOUND_OPENED}
+        return {'success': False, 'error': Messages.FILE_NOT_FOUND}
+
+    def open_file(self, filepath: str) -> dict:
+        """
+        使用系统默认程序打开文件
+
+        Args:
+            filepath: 文件路径
+
+        Returns:
+            {'success': bool}
+        """
+        file_path = Path(filepath)
+        if file_path.exists():
+            success = util_open_file(file_path)
+            return {'success': success}
+
         fallback_dir = file_path.parent if file_path.parent.exists() else self._config.download_path
         success = util_open_folder(fallback_dir)
         if success:

@@ -6,7 +6,7 @@
 
 class Messages:
     INVALID_URL = '请输入有效的 URL'
-    UNSUPPORTED_URL = '不支持的 URL 格式，请输入 YouTube 或 X.com 链接'
+    UNSUPPORTED_URL = '不支持的 URL 格式，请输入 YouTube、X.com 或 Bilibili 链接'
     VIDEO_UNAVAILABLE = '视频不可用或已被删除'
     PRIVATE_VIDEO = '这是一个私密视频，无法访问'
     LOGIN_REQUIRED = '此视频需要登录才能观看，请在浏览器中登录 X.com 后重试'

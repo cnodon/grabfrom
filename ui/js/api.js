@@ -57,10 +57,14 @@ const API = {
         outputFormat,
         title,
         thumbnail = '',
+        platform = '',
+        qualityLabel = '',
+        resolution = '',
         includeAudio = true,
         hasAudio = true,
         hasVideo = true,
-        formatExt = ''
+        formatExt = '',
+        historyId = null
     ) {
         if (!this._api) await this.init();
         return await this._api.start_download(
@@ -69,10 +73,14 @@ const API = {
             outputFormat,
             title,
             thumbnail,
+            platform,
+            qualityLabel,
+            resolution,
             includeAudio,
             hasAudio,
             hasVideo,
-            formatExt
+            formatExt,
+            historyId
         );
     },
 
@@ -116,6 +124,26 @@ const API = {
     async clearCompleted() {
         if (!this._api) await this.init();
         return await this._api.clear_completed();
+    },
+
+    // ==================== 下载历史 ====================
+
+    // 获取下载历史
+    async getHistory(filters = {}) {
+        if (!this._api) await this.init();
+        return await this._api.get_history(filters);
+    },
+
+    // 删除单条历史记录
+    async deleteHistory(recordId) {
+        if (!this._api) await this.init();
+        return await this._api.delete_history(recordId);
+    },
+
+    // 清空历史记录
+    async clearHistory() {
+        if (!this._api) await this.init();
+        return await this._api.clear_history();
     },
 
     // ==================== 设置管理 ====================
@@ -162,6 +190,12 @@ const API = {
     async openFileLocation(filepath) {
         if (!this._api) await this.init();
         return await this._api.open_file_location(filepath);
+    },
+
+    // 打开文件
+    async openFile(filepath) {
+        if (!this._api) await this.init();
+        return await this._api.open_file(filepath);
     },
 
     // 获取磁盘信息
