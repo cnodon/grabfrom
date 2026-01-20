@@ -890,13 +890,26 @@ class DownloadManager:
             return [task.to_dict() for task in self._tasks.values()]
 
     def remove_task(self, task_id: str) -> bool:
-        """移除任务（仅限已完成/已取消/失败的任务）"""
+        """移除任务（已完成/已取消/失败/已暂停的任务）"""
         if task_id not in self._tasks:
             return False
 
         task = self._tasks[task_id]
-        if task.status not in [TaskStatus.COMPLETED, TaskStatus.CANCELLED, TaskStatus.FAILED]:
+        if task.status not in [
+            TaskStatus.COMPLETED,
+            TaskStatus.CANCELLED,
+            TaskStatus.FAILED,
+            TaskStatus.PAUSED,
+        ]:
             return False
+
+        thread = self._threads.get(task_id)
+        if thread and thread.is_alive():
+            self._cancel_flags[task_id] = True
+            pause_event = self._pause_events.get(task_id)
+            if pause_event:
+                pause_event.set()
+            thread.join(timeout=2)
 
         for target in [task.output_path, task.audio_path]:
             if not target:

@@ -49,7 +49,7 @@
           <div class="flex flex-col gap-8">
             <div class="flex items-center gap-3">
               <img
-                src="../../assets/app_icon.png"
+                src="assets/app_icon.png"
                 alt="Squirrel"
                 class="size-10 rounded-xl shadow-lg shadow-primary/20"
               />
@@ -187,46 +187,23 @@
                   Compatible Platforms
                 </p>
                 <div
-                  class="flex gap-8 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
+                  class="flex gap-6 grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all"
                 >
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="size-8 rounded-lg bg-red-600 flex items-center justify-center text-white"
-                    >
-                      <span class="material-symbols-outlined text-xl"
-                        >play_circle</span
-                      >
-                    </div>
-                    <span
-                      class="text-sm font-semibold text-[#121617] dark:text-white"
-                      data-i18n="ui.home.youtube"
-                      >YouTube</span
-                    >
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="size-8 rounded-lg bg-black flex items-center justify-center text-white"
-                    >
-                      <span class="font-bold text-xs italic">X</span>
-                    </div>
-                    <span
-                      class="text-sm font-semibold text-[#121617] dark:text-white"
-                      data-i18n="ui.home.xcom"
-                      >X.com</span
-                    >
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div
-                      class="size-8 rounded-lg bg-[#00A1D6] flex items-center justify-center text-white font-bold text-xs"
-                    >
-                      bi
-                    </div>
-                    <span
-                      class="text-sm font-semibold text-[#121617] dark:text-white"
-                      data-i18n="ui.home.bilibili"
-                      >Bilibili</span
-                    >
-                  </div>
+                  <img
+                    class="size-10 rounded-lg object-cover"
+                    src="assets/logo/youtube.png"
+                    alt="YouTube"
+                  />
+                  <img
+                    class="size-10 rounded-lg object-cover"
+                    src="assets/logo/xcom.png"
+                    alt="X.com"
+                  />
+                  <img
+                    class="size-10 rounded-lg object-cover"
+                    src="assets/logo/bilibili.png"
+                    alt="Bilibili"
+                  />
                 </div>
               </div>
             </div>
@@ -570,24 +547,10 @@
             <div class="px-8 py-4 flex gap-2">
               <button
                 class="px-4 py-1.5 rounded-full bg-primary text-white text-xs font-semibold"
-                data-filter="all"
-                data-i18n="ui.dashboard.filters.all"
-              >
-                All Tasks
-              </button>
-              <button
-                class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
                 data-filter="downloading"
                 data-i18n="ui.dashboard.filters.downloading"
               >
                 Downloading
-              </button>
-              <button
-                class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
-                data-filter="paused"
-                data-i18n="ui.dashboard.filters.paused"
-              >
-                Paused
               </button>
               <button
                 class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
@@ -596,6 +559,73 @@
               >
                 Completed
               </button>
+              <button
+                class="px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-primary/50 transition-colors"
+                data-filter="history"
+                data-i18n="ui.dashboard.filters.history"
+              >
+                History
+              </button>
+            </div>
+            <div id="history-controls" class="px-8 pb-4 hidden">
+              <div
+                class="flex flex-wrap items-center gap-3 bg-white dark:bg-[#25282c] border border-gray-100 dark:border-gray-700/50 rounded-xl px-4 py-3"
+              >
+                <div class="flex-1 min-w-[200px]">
+                  <input
+                    id="history-search"
+                    class="w-full h-10 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 text-sm font-medium text-gray-600 dark:text-gray-300 focus:outline-none"
+                    data-i18n-placeholder="ui.dashboard.history.searchPlaceholder"
+                    placeholder="Search history..."
+                    type="text"
+                  />
+                </div>
+                <select
+                  id="history-status"
+                  class="h-10 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 text-sm font-medium text-gray-600 dark:text-gray-300"
+                >
+                  <option value="all" data-i18n="ui.dashboard.history.statusAll">
+                    All Status
+                  </option>
+                  <option value="completed" data-i18n="ui.dashboard.history.statusCompleted">
+                    Completed
+                  </option>
+                  <option value="failed" data-i18n="ui.dashboard.history.statusFailed">
+                    Failed
+                  </option>
+                  <option value="cancelled" data-i18n="ui.dashboard.history.statusCancelled">
+                    Cancelled
+                  </option>
+                </select>
+                <select
+                  id="history-platform"
+                  class="h-10 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 text-sm font-medium text-gray-600 dark:text-gray-300"
+                >
+                  <option value="all" data-i18n="ui.dashboard.history.platformAll">
+                    All Platforms
+                  </option>
+                  <option value="youtube" data-i18n="ui.dashboard.history.platformYouTube">
+                    YouTube
+                  </option>
+                  <option value="x" data-i18n="ui.dashboard.history.platformX">
+                    X.com
+                  </option>
+                  <option value="bilibili" data-i18n="ui.dashboard.history.platformBilibili">
+                    Bilibili
+                  </option>
+                </select>
+                <select
+                  id="history-sort"
+                  class="h-10 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg px-3 text-sm font-medium text-gray-600 dark:text-gray-300"
+                >
+                  <option value="newest" data-i18n="ui.dashboard.history.sortNewest">
+                    Newest
+                  </option>
+                  <option value="oldest" data-i18n="ui.dashboard.history.sortOldest">
+                    Oldest
+                  </option>
+                </select>
+              </div>
             </div>
             <div class="flex-1 overflow-y-auto px-8 pb-32">
               <div id="tasks-list" class="flex flex-col gap-3"></div>
@@ -621,6 +651,13 @@
                     >clear_all</span
                   >
                   <span data-i18n="ui.dashboard.clearFinished">Clear Finished</span>
+                </button>
+                <button
+                  id="clear-history-btn"
+                  class="hidden flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-[#121617] dark:text-white text-sm font-bold hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <span class="material-symbols-outlined text-lg">delete_sweep</span>
+                  <span data-i18n="ui.dashboard.history.clear">Clear History</span>
                 </button>
               </div>
             </footer>

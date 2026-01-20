@@ -11,12 +11,21 @@ const App = {
     outputMode: "video+audio",
     selectedFormatIds: new Set(),
     tasks: new Map(),
-    filter: "all",
+    filter: "downloading",
     search: "",
+    history: [],
+    historyFilters: {
+      status: "all",
+      platform: "all",
+      keyword: "",
+      sort: "newest",
+    },
     settings: {},
     appInfo: {},
   },
   elements: {},
+  historyRefreshAt: 0,
+  historyRefreshInFlight: false,
 
   init() {
     this.injectSidebars();
@@ -55,11 +64,17 @@ const App = {
       tasksSearch: get("tasks-search"),
       statActive: get("stat-active"),
       statPaused: get("stat-paused"),
+      historyControls: get("history-controls"),
+      historySearch: get("history-search"),
+      historyStatus: get("history-status"),
+      historyPlatform: get("history-platform"),
+      historySort: get("history-sort"),
       dashboardPasteUrl: get("dashboard-paste-url"),
       dashboardSavePath: get("dashboard-save-path"),
       dashboardChangePath: get("dashboard-change-path"),
       pauseAllBtn: get("pause-all-btn"),
       clearFinishedBtn: get("clear-finished-btn"),
+      clearHistoryBtn: get("clear-history-btn"),
       totalSpeed: get("total-speed"),
       speedBar: get("speed-bar"),
       settingsDownloadPath: get("settings-download-path"),
@@ -95,6 +110,9 @@ const App = {
     this.updateVersionLabels();
     if (this.state.videoInfo) {
       this.populateDetails(this.state.videoInfo);
+    }
+    if (this.state.filter === "history") {
+      this.renderHistoryList();
     }
     this.refreshDiskInfo();
   },
@@ -256,6 +274,31 @@ const App = {
       });
     }
 
+    if (this.elements.historySearch) {
+      this.elements.historySearch.addEventListener("input", (event) => {
+        this.state.historyFilters.keyword = event.target.value.trim();
+        this.refreshHistory();
+      });
+    }
+    if (this.elements.historyStatus) {
+      this.elements.historyStatus.addEventListener("change", (event) => {
+        this.state.historyFilters.status = event.target.value;
+        this.refreshHistory();
+      });
+    }
+    if (this.elements.historyPlatform) {
+      this.elements.historyPlatform.addEventListener("change", (event) => {
+        this.state.historyFilters.platform = event.target.value;
+        this.refreshHistory();
+      });
+    }
+    if (this.elements.historySort) {
+      this.elements.historySort.addEventListener("change", (event) => {
+        this.state.historyFilters.sort = event.target.value;
+        this.refreshHistory();
+      });
+    }
+
     if (this.elements.dashboardPasteUrl) {
       this.elements.dashboardPasteUrl.addEventListener("click", async () => {
         const text = await navigator.clipboard.readText().catch(() => "");
@@ -282,8 +325,21 @@ const App = {
     this.elements.clearFinishedBtn.addEventListener("click", () =>
       this.clearFinished()
     );
+    if (this.elements.clearHistoryBtn) {
+      this.elements.clearHistoryBtn.addEventListener("click", () =>
+        this.clearHistory()
+      );
+    }
 
     this.elements.tasksList.addEventListener("click", (event) => {
+      const historyAction = event.target.closest("[data-history-action]");
+      if (historyAction) {
+        const recordId = historyAction.dataset.historyId;
+        const action = historyAction.dataset.historyAction;
+        this.handleHistoryAction(recordId, action);
+        return;
+      }
+
       const action = event.target.closest("[data-task-action]");
       if (action) {
         const taskId = action.dataset.taskId;
@@ -790,6 +846,13 @@ const App = {
   },
 
   renderTasks() {
+    this.updateStats([]);
+    if (this.state.filter === "history") {
+      this.toggleHistoryControls(true);
+      this.refreshHistory();
+      return;
+    }
+    this.toggleHistoryControls(false);
     const tasks = this.getFilteredTasks();
     if (!tasks.length) {
       const emptyTasks =
@@ -808,8 +871,12 @@ const App = {
   getFilteredTasks() {
     const all = Array.from(this.state.tasks.values());
     let filtered = all;
-    if (this.state.filter !== "all") {
-      filtered = filtered.filter((task) => task.status === this.state.filter);
+    if (this.state.filter === "downloading") {
+      filtered = filtered.filter((task) =>
+        ["downloading", "pending", "paused"].includes(task.status)
+      );
+    } else if (this.state.filter === "completed") {
+      filtered = filtered.filter((task) => task.status === "completed");
     }
     if (this.state.search) {
       filtered = filtered.filter((task) =>
@@ -817,6 +884,220 @@ const App = {
       );
     }
     return filtered.sort((a, b) => b.created_at - a.created_at);
+  },
+
+  toggleHistoryControls(show) {
+    if (this.elements.historyControls) {
+      this.elements.historyControls.classList.toggle("hidden", !show);
+    }
+    if (this.elements.pauseAllBtn) {
+      this.elements.pauseAllBtn.classList.toggle("hidden", show);
+    }
+    if (this.elements.clearFinishedBtn) {
+      this.elements.clearFinishedBtn.classList.toggle("hidden", show);
+    }
+    if (this.elements.clearHistoryBtn) {
+      this.elements.clearHistoryBtn.classList.toggle("hidden", !show);
+    }
+  },
+
+  async refreshHistory(force = false) {
+    if (this.historyRefreshInFlight) return;
+    const now = Date.now();
+    if (!force && now - this.historyRefreshAt < 600) return;
+    if (this.state.filter !== "history") return;
+    this.historyRefreshInFlight = true;
+    this.historyRefreshAt = now;
+    try {
+      const filters = this.state.historyFilters || {};
+      const records = await API.getHistory({
+        status: filters.status || "all",
+        platform: filters.platform || "all",
+        keyword: filters.keyword || "",
+        sort: filters.sort || "newest",
+      });
+      if (this.state.filter !== "history") {
+        return;
+      }
+      this.state.history = records || [];
+      this.renderHistoryList();
+    } finally {
+      this.historyRefreshInFlight = false;
+    }
+  },
+
+  renderHistoryList() {
+    const records = this.state.history || [];
+    if (!records.length) {
+      const emptyText =
+        STRINGS.ui?.dashboard?.history?.empty || "No history records.";
+      this.elements.tasksList.innerHTML = `<div class="bg-white dark:bg-[#25282c] p-6 rounded-xl border border-gray-100 dark:border-gray-700/50 text-center text-sm text-gray-500">${this.escapeHtml(
+        emptyText
+      )}</div>`;
+      return;
+    }
+    this.elements.tasksList.innerHTML = records
+      .map((record) => this.renderHistoryRow(record))
+      .join("");
+  },
+
+  renderHistoryRow(record) {
+    const status = record.status || "completed";
+    const statusBadge = this.getStatusBadge(status);
+    const sizeLabel = record.filesize_bytes
+      ? this.formatBytes(record.filesize_bytes)
+      : "--";
+    const finishedAt = record.finished_at || record.started_at;
+    const timeLabel = finishedAt ? this.formatDateTime(finishedAt) : "--";
+    const qualityLabel =
+      record.quality_label ||
+      record.resolution ||
+      (record.output_format ? record.output_format.toUpperCase() : "--");
+    const platformLabel = this.getPlatformLabel(record.platform);
+    const strings = STRINGS.ui?.dashboard?.history || {};
+    const audioLabel = record.audio_extracted
+      ? strings.audioYes || "Yes"
+      : strings.audioNo || "No";
+
+    return `
+      <div class="history-row group relative bg-white dark:bg-[#25282c] p-4 rounded-xl border border-gray-100 dark:border-gray-700/50 shadow-sm hover:shadow-md transition-all" data-history-id="${this.escapeHtml(
+        record.id
+      )}">
+        <div class="flex items-start gap-4">
+          <div class="relative size-14 shrink-0 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden flex items-center justify-center">
+            <span class="material-symbols-outlined text-primary text-2xl">history</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-sm font-bold truncate text-[#121617] dark:text-white pr-4">${this.escapeHtml(
+                record.title || "Untitled"
+              )}</h3>
+              ${statusBadge}
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-[11px] text-[#658086] mb-2">
+              <span>${this.escapeHtml(platformLabel)}</span>
+              <span>•</span>
+              <span>${this.escapeHtml(qualityLabel)}</span>
+              <span>•</span>
+              <span>${this.escapeHtml(
+                (strings.labelSize || "Size") + ": " + sizeLabel
+              )}</span>
+              <span>•</span>
+              <span>${this.escapeHtml(
+                (strings.labelAudio || "Audio extracted") + ": " + audioLabel
+              )}</span>
+            </div>
+            <div class="text-[11px] text-[#8A9AA0] flex items-center gap-2">
+              <span class="material-symbols-outlined text-[14px]">event</span>
+              <span>${this.escapeHtml(
+                (strings.labelFinished || "Finished") + ": " + timeLabel
+              )}</span>
+            </div>
+            ${
+              record.error_message
+                ? `<p class="text-[11px] text-red-500 mt-2">${this.escapeHtml(
+                    record.error_message
+                  )}</p>`
+                : ""
+            }
+          </div>
+          <div class="hover-actions opacity-0 flex items-center gap-2 transition-opacity ml-2">
+            <button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 flex items-center justify-center hover:bg-gray-200 transition-colors" data-history-action="open-folder" data-history-id="${this.escapeHtml(
+              record.id
+            )}" title="${this.escapeHtml(
+      strings.actionOpen || "Open folder"
+    )}">
+              <span class="material-symbols-outlined text-xl">folder_open</span>
+            </button>
+            <button class="size-9 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg shadow-primary/30" data-history-action="play" data-history-id="${this.escapeHtml(
+              record.id
+            )}" title="${this.escapeHtml(
+      strings.actionPlay || "Play"
+    )}">
+              <span class="material-symbols-outlined text-xl">play_arrow</span>
+            </button>
+            <button class="size-9 rounded-full bg-gray-100 dark:bg-gray-700 text-red-500 flex items-center justify-center hover:bg-red-50 transition-colors" data-history-action="delete" data-history-id="${this.escapeHtml(
+              record.id
+            )}" title="${this.escapeHtml(
+      strings.actionDelete || "Delete record"
+    )}">
+              <span class="material-symbols-outlined text-xl">delete</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  async handleHistoryAction(recordId, action) {
+    const record = (this.state.history || []).find(
+      (item) => String(item.id) === String(recordId)
+    );
+    if (!record) return;
+
+    if (action === "open-folder") {
+      if (record.save_path) {
+        const result = await API.openFileLocation(record.save_path);
+        if (result?.warning) {
+          this.showToast(
+            STRINGS.info?.openedFolderTitle || "Opened folder",
+            result.warning
+          );
+        } else if (result?.success === false) {
+          this.showToast(
+            STRINGS.errors?.openFailed || "Open failed",
+            result.error ||
+              STRINGS.errors?.openFailedGeneric ||
+              "Unable to open",
+            true
+          );
+        }
+      } else {
+        this.showToast(
+          STRINGS.errors?.openFailed || "Open failed",
+          STRINGS.errors?.openFailedMissingPath || "File path missing",
+          true
+        );
+      }
+      return;
+    }
+
+    if (action === "play") {
+      if (record.save_path) {
+        const result = await API.openFile(record.save_path);
+        if (result?.warning) {
+          this.showToast(
+            STRINGS.info?.openedFolderTitle || "Opened folder",
+            result.warning
+          );
+        } else if (result?.success === false) {
+          this.showToast(
+            STRINGS.errors?.openFailed || "Open failed",
+            result.error ||
+              STRINGS.errors?.openFailedGeneric ||
+              "Unable to open",
+            true
+          );
+        }
+      } else {
+        this.showToast(
+          STRINGS.errors?.openFailed || "Open failed",
+          STRINGS.errors?.openFailedMissingPath || "File path missing",
+          true
+        );
+      }
+      return;
+    }
+
+    if (action === "delete") {
+      await API.deleteHistory(record.id);
+      this.refreshHistory(true);
+    }
+  },
+
+  async clearHistory() {
+    await API.clearHistory();
+    this.refreshHistory(true);
   },
 
   renderTaskRow(task) {
@@ -833,6 +1114,19 @@ const App = {
       progress.total_str && progress.downloaded_str
         ? `${progress.downloaded_str} / ${progress.total_str}`
         : "--";
+    const completedSize = progress.total_str || progress.downloaded_str || "--";
+    const completedTime = task.completed_at
+      ? this.formatDateTime(task.completed_at)
+      : "--";
+    const platformLabel = this.getPlatformLabel(task.platform);
+    const completedTemplate =
+      STRINGS.ui?.dashboard?.completedMeta ||
+      "Size {size} · Finished {time} · Source {source}";
+    const completedMeta = this.formatString(completedTemplate, {
+      size: completedSize,
+      time: completedTime,
+      source: platformLabel,
+    });
     const statusBadge = this.getStatusBadge(status);
     const actionButtons = this.getTaskActions(task, status);
     const stageLabel = this.getStageLabel(task);
@@ -864,9 +1158,9 @@ const App = {
             ${
               isCompleted
                 ? `<div class="flex items-center gap-4 mb-1">
-                    <span class="text-[11px] text-[#658086]">Finished - ${
-                      progress.total_str || "--"
-                    }</span>
+                    <span class="text-[11px] text-[#658086]">${this.escapeHtml(
+                      completedMeta
+                    )}</span>
                     ${
                       task.output_path
                         ? `<button class="text-[11px] text-primary hover:underline flex items-center gap-1" data-task-action="open-folder" data-task-id="${task.task_id}">
@@ -953,6 +1247,16 @@ const App = {
       pending: labels.stagePending || "Pending",
     };
     return stageMap[stage] || stageMap.downloading;
+  },
+
+  getPlatformLabel(platform) {
+    const value = String(platform || "").toLowerCase();
+    if (value.includes("youtube")) return "YouTube";
+    if (["x", "x.com", "twitter"].includes(value)) return "X.com";
+    if (value.includes("bilibili") || value === "bili" || value === "b") {
+      return "Bilibili";
+    }
+    return platform || "--";
   },
 
   getTaskActions(task, status) {
@@ -1169,6 +1473,17 @@ const App = {
 
   formatNumber(value) {
     return new Intl.NumberFormat().format(value);
+  },
+
+  formatDateTime(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return new Intl.DateTimeFormat(undefined, {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
   },
 
   escapeHtml(value) {
